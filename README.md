@@ -72,6 +72,7 @@ docker run --rm -p 3000:3000 -p 4000:4000 \
 | Find / replace, command palette | `Ctrl/Cmd+F`, `Ctrl/Cmd+H`, `F1` |
 | Read Markdown nicely | `.md` files open rendered. Switch between **Preview**, **Split** and **Edit** in the tab bar |
 | Undo all your changes | Reset button (↺) in the Files panel |
+| Re-attempt a finished section | **Retry** on the assessment page, next to an expired or submitted section. You get a fresh repository and a new timer, and the previous score stays in the attempt's timeline |
 | Get AI help | **AI Coach** tab. It copies a prompt with the task and your failing tests for Claude, Cursor, Copilot and others |
 
 Test files are locked (🔒). If you change them from the terminal anyway, the originals are restored before final grading.

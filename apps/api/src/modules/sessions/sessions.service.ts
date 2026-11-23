@@ -119,6 +119,38 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
     return this.get(sessionId);
   }
 
+  /**
+   * Re-attempt a finished (submitted / expired / skipped) section: the previous result is recorded in the
+   * session timeline, its workspace is discarded, and the section restarts with a fresh repository and timer.
+   */
+  async retrySection(sessionId: string, sectionId: string) {
+    const s = await this.prisma.session.findUnique({ where: { id: sessionId }, include: { sections: true } });
+    if (!s) throw new NotFoundException('Session not found');
+    if (s.status === 'ABANDONED') throw new ConflictException('This attempt was abandoned — start a new one from the dashboard');
+    const sa = s.sections.find((x) => x.sectionId === sectionId);
+    if (!sa) throw new NotFoundException('Section not found');
+    if (!['SUBMITTED', 'EXPIRED', 'SKIPPED'].includes(sa.status)) throw new ConflictException(`Only finished sections can be retried (this one is ${sa.status.toLowerCase()})`);
+    const other = s.sections.find((x) => x.status === 'IN_PROGRESS');
+    if (other) throw new ConflictException(`Finish section "${other.sectionId}" before retrying another`);
+
+    await this.event(sessionId, 'section.retried', { sectionId, previousStatus: sa.status, previousScore: sa.score });
+    const old = await this.prisma.workspace.findMany({ where: { sectionAttemptId: sa.id } });
+    for (const ws of old) {
+      await this.workspaces.stop(ws.id).catch(() => undefined);
+      await this.workspaces.deleteFiles(ws.id).catch(() => undefined);
+    }
+    await this.prisma.submission.deleteMany({ where: { sectionAttemptId: sa.id } });
+    await this.prisma.workspace.deleteMany({ where: { sectionAttemptId: sa.id } });
+    await this.prisma.sectionAttempt.update({
+      where: { id: sa.id },
+      data: { status: 'PENDING', startedAt: null, deadline: null, submittedAt: null, score: null },
+    });
+    if (s.status !== 'IN_PROGRESS') {
+      await this.prisma.session.update({ where: { id: sessionId }, data: { status: 'IN_PROGRESS', submittedAt: null, score: null } });
+    }
+    return this.startSection(sessionId, sectionId);
+  }
+
   /** Final grading: restore protected files, run the full suite, store diff + score. */
   async submitSection(sessionId: string, sectionId: string, reason: 'submitted' | 'expired' = 'submitted') {
     const sa = await this.prisma.sectionAttempt.findUnique({ where: { sessionId_sectionId: { sessionId, sectionId } }, include: { workspaces: true } });
@@ -134,7 +166,8 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
         let score = 0;
         let testRunId: string | undefined;
         let diff = '';
-        if (ws.status === 'RUNNING' || ws.status === 'READY') {
+        // STOPPED = sandbox stopped for idleness; its files are intact and finalGrade() restarts it.
+        if (ws.status === 'RUNNING' || ws.status === 'READY' || ws.status === 'STOPPED') {
           try {
             const run = await this.workspaces.finalGrade(ws.id);
             testRunId = run.id;
@@ -160,7 +193,7 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
 
   private async maybeFinish(sessionId: string, force = false) {
     const s = await this.prisma.session.findUnique({ where: { id: sessionId }, include: { sections: true } });
-    if (!s) return;
+    if (!s || s.status === 'SUBMITTED' || s.status === 'EXPIRED') return;
     const done = s.sections.every((x) => x.status === 'SUBMITTED' || x.status === 'EXPIRED' || x.status === 'SKIPPED');
     if (!done && !force) return;
     const graded = s.sections.filter((x) => x.score !== null);

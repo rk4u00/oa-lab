@@ -149,6 +149,7 @@ export const api = {
   session: (id: string) => req<Session>(`/sessions/${enc(id)}`),
   startSection: (id: string, sectionId: string) => req<Session>(`/sessions/${enc(id)}/sections/${enc(sectionId)}/start`, { method: 'POST' }),
   submitSection: (id: string, sectionId: string) => req<Session>(`/sessions/${enc(id)}/sections/${enc(sectionId)}/submit`, { method: 'POST' }),
+  retrySection: (id: string, sectionId: string) => req<Session>(`/sessions/${enc(id)}/sections/${enc(sectionId)}/retry`, { method: 'POST' }),
   submitSession: (id: string) => req<Session>(`/sessions/${enc(id)}/submit`, { method: 'POST' }),
   abandonSession: (id: string) => req<Session>(`/sessions/${enc(id)}/abandon`, { method: 'POST' }),
   results: (id: string) => req<Results>(`/sessions/${enc(id)}/results`),

@@ -19,6 +19,7 @@ export class SessionsController {
   @Get(':id') get(@Param('id') id: string) { return this.sessions.get(id); }
   @Post(':id/sections/:sectionId/start') start(@Param('id') id: string, @Param('sectionId') s: string) { return this.sessions.startSection(id, s); }
   @Post(':id/sections/:sectionId/submit') submitSection(@Param('id') id: string, @Param('sectionId') s: string) { return this.sessions.submitSection(id, s); }
+  @Post(':id/sections/:sectionId/retry') retry(@Param('id') id: string, @Param('sectionId') s: string) { return this.sessions.retrySection(id, s); }
   @Post(':id/submit') submit(@Param('id') id: string) { return this.sessions.submit(id); }
   @Post(':id/abandon') abandon(@Param('id') id: string) { return this.sessions.abandon(id); }
   @Get(':id/results') results(@Param('id') id: string) { return this.sessions.results(id); }

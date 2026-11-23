@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowRight, Bot, CheckCircle2, Info, Play, Send, Timer } from 'lucide-react';
+import { ArrowRight, Bot, CheckCircle2, Info, Play, RotateCcw, Send, Timer } from 'lucide-react';
 import { api, formatDuration, type Session, type SessionSection } from '@/lib/api';
 import { ConfirmDialog, ErrorBox, HealthBadge, Logo, ScorePill, Spinner, StatusBadge, useCountdown } from '@/components/ui';
 
@@ -19,7 +19,9 @@ export default function SessionOverview() {
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<null | { kind: 'section'; section: SessionSection } | { kind: 'all' } | { kind: 'abandon' }>(null);
+  const [confirm, setConfirm] = useState<
+    null | { kind: 'section'; section: SessionSection } | { kind: 'retry'; section: SessionSection } | { kind: 'all' } | { kind: 'abandon' }
+  >(null);
 
   const load = useCallback(async () => {
     try {
@@ -117,6 +119,8 @@ export default function SessionOverview() {
               })}
               onOpen={() => openSection(s)}
               onSubmit={() => setConfirm({ kind: 'section', section: s })}
+              onRetry={() => setConfirm({ kind: 'retry', section: s })}
+              canRetry={session.status !== 'ABANDONED'}
             />
           ))}
         </div>
@@ -135,6 +139,32 @@ export default function SessionOverview() {
         )}
       </main>
 
+      <ConfirmDialog
+        open={confirm?.kind === 'retry'}
+        title="Re-attempt this section?"
+        body={
+          confirm?.kind === 'retry' ? (
+            <>
+              You get a fresh copy of <strong className="text-fg">{confirm.section.challenges.map((c) => c.title).join(', ')}</strong> and a new{' '}
+              {confirm.section.durationMinutes}-minute timer, starting now.
+              <br />
+              <br />
+              Your previous result{confirm.section.score !== null ? ` (${Math.round((confirm.section.score ?? 0) * 10) / 10}%)` : ''} and its changes are replaced. It stays
+              listed in this attempt&apos;s timeline.
+            </>
+          ) : null
+        }
+        confirmLabel="Start re-attempt"
+        busy={confirm?.kind === 'retry' && busy === `retry-${confirm.section.id}`}
+        onCancel={() => setConfirm(null)}
+        onConfirm={() =>
+          confirm?.kind === 'retry' &&
+          act(`retry-${confirm.section.id}`, () => api.retrySection(sessionId, confirm.section.id), (ns) => {
+            const sec = ns.sections.find((x) => x.id === confirm.section.id);
+            if (sec) openSection(sec);
+          })
+        }
+      />
       <ConfirmDialog
         open={confirm?.kind === 'section'}
         title="Submit this section?"
@@ -177,6 +207,8 @@ function SectionRow({
   onStart,
   onOpen,
   onSubmit,
+  onRetry,
+  canRetry,
 }: {
   index: number;
   section: SessionSection;
@@ -187,6 +219,8 @@ function SectionRow({
   onStart: () => void;
   onOpen: () => void;
   onSubmit: () => void;
+  onRetry: () => void;
+  canRetry: boolean;
 }) {
   const remaining = useCountdown(s.status === 'IN_PROGRESS' ? s.deadline : null, serverTime);
   const done = s.status === 'SUBMITTED' || s.status === 'EXPIRED' || s.status === 'SKIPPED';
@@ -207,6 +241,11 @@ function SectionRow({
         )}
         <StatusBadge status={s.status} />
         {done && <ScorePill score={s.score} />}
+        {done && canRetry && (
+          <button className="btn btn-outline" disabled={!!busy || blocked} onClick={onRetry} title={blocked ? 'Finish the active section first' : 'Start this section again with a fresh repository and timer'}>
+            {busy === `retry-${s.id}` ? <Spinner className="h-3.5 w-3.5" /> : <RotateCcw className="h-3.5 w-3.5" />} Retry
+          </button>
+        )}
         {!finished && s.status === 'PENDING' && (
           <button className="btn btn-primary" disabled={!!busy || blocked} onClick={onStart} title={blocked ? 'Finish the active section first' : undefined}>
             {busy === `start-${s.id}` ? <Spinner className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />} Start
