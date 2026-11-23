@@ -53,7 +53,9 @@ function registerNavigation(monaco: Monaco) {
         if (!ctx || !word) return null;
         const from = pathOf(model.uri);
         uriToPath.set(model.uri.toString(), from);
-        const locs = await api.definition(ctx.workspaceId, word.word, from, position.lineNumber).catch(() => []);
+        // The API ranks candidates (imports followed, same file, real definitions over assignments).
+        // Return only the best one so Ctrl/Cmd+click always lands on the function itself.
+        const locs = (await api.definition(ctx.workspaceId, word.word, from, position.lineNumber).catch(() => [])).slice(0, 1);
         const out = [];
         for (const l of locs) {
           const uri = await ensureModel(monaco, ctx.workspaceId, l.path).catch(() => null);
@@ -168,6 +170,8 @@ export function CodeEditor({
 }) {
   const [ready, setReady] = useState(false);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  // State (not just a ref) so the reveal effect re-runs once a freshly mounted editor is ready.
+  const [mounted, setMounted] = useState(0);
   const saveRef = useRef(onSave);
   saveRef.current = onSave;
 
@@ -178,20 +182,30 @@ export function CodeEditor({
   const onMount: OnMount = (editor, monaco) => {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => saveRef.current());
     editorRef.current = editor;
+    setMounted((n) => n + 1);
     editor.focus();
   };
 
   useEffect(() => {
     const ed = editorRef.current;
     if (!ed || !reveal) return;
-    // Wait a tick so the model for a newly opened tab is attached.
-    const t = setTimeout(() => {
-      ed.revealLineInCenter(reveal.line);
+    // A newly opened tab attaches its model asynchronously: retry until the editor shows `path`.
+    let tries = 0;
+    let t: ReturnType<typeof setTimeout>;
+    const go = () => {
+      const model = ed.getModel();
+      const ready = model && model.getLineCount() >= reveal.line && pathOf(model.uri) === path;
+      if (!ready && tries++ < 40) {
+        t = setTimeout(go, 25);
+        return;
+      }
       ed.setSelection({ startLineNumber: reveal.line, startColumn: reveal.column, endLineNumber: reveal.line, endColumn: reveal.column });
+      ed.revealLineInCenter(reveal.line);
       ed.focus();
-    }, 30);
+    };
+    t = setTimeout(go, 0);
     return () => clearTimeout(t);
-  }, [reveal?.nonce, path, reveal]);
+  }, [reveal?.nonce, path, reveal, mounted]);
 
   if (!ready) return <div className="grid h-full place-items-center"><Spinner /></div>;
   return (
@@ -216,7 +230,7 @@ export function CodeEditor({
         padding: { top: 8 },
         bracketPairColorization: { enabled: true },
         // Ctrl/Cmd+click → go to definition; multiple matches open the peek view.
-        gotoLocation: { multipleDefinitions: 'peek', multipleReferences: 'peek' },
+        gotoLocation: { multipleDefinitions: 'goto', multipleReferences: 'peek' },
         definitionLinkOpensInPeek: false,
       }}
     />
