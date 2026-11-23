@@ -1,4 +1,5 @@
-# One command:  docker compose up --build   →  open http://localhost:3000
+# One command:  docker compose up   →  open http://localhost:3000
+# (the app image is built automatically on first run; use `docker compose up --build` after pulling updates)
 services:
   oa-lab:
     build: .

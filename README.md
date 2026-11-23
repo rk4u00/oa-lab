@@ -12,10 +12,10 @@ Requirements: **Docker Desktop** (running) and `git`.
 ```bash
 git clone https://github.com/rk4u00/oa-lab.git
 cd oa-lab
-docker compose up --build
+docker compose up
 ```
 
-Open **http://localhost:3000**, then pick an assessment or any challenge and click **Start**.
+The first run builds the image automatically. After `git pull`, use `docker compose up --build`. Then open **http://localhost:3000**, then pick an assessment or any challenge and click **Start**.
 
 The first start builds the sandbox images (Python/Django, Node.js, Java/Spring Boot) and installs each challenge's dependencies the first time you open it, so it takes a few minutes. Later starts are fast.
 

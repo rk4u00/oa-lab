@@ -39,7 +39,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared
       '@prisma/client':
-        specifier: ^6.10.1
+        specifier: 6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       diff:
         specifier: ^8.0.2
@@ -76,7 +76,7 @@ importers:
         specifier: ^8.18.1
         version: 8.18.2
       prisma:
-        specifier: ^6.10.1
+        specifier: 6.19.3
         version: 6.19.3(typescript@5.9.3)
       tsc-watch:
         specifier: ^7.1.1
