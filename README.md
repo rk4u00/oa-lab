@@ -21,6 +21,25 @@ Open **http://localhost:3000**, pick an assessment or a single challenge, and cl
 - **After `git pull`**, rebuild with `docker compose up --build`.
 - **To stop**, press `Ctrl+C` or run `docker compose down`. Your attempts are kept in `./data`.
 
+### Docker commands
+
+Run these from the `oa-lab` folder.
+
+| What you want | Command |
+|---|---|
+| Start OA Lab (builds automatically the first time) | `docker compose up` |
+| Start it in the background | `docker compose up -d` |
+| Watch the logs (useful while a question is preparing) | `docker compose logs -f` |
+| See whether it is running | `docker compose ps` |
+| Stop OA Lab (attempts are kept in `./data`) | `docker compose down` |
+| Restart it | `docker compose restart` |
+| Update to the latest version | `git pull` then `docker compose up --build` |
+| Rebuild from scratch (after a broken build) | `docker compose build --no-cache` then `docker compose up` |
+| Rebuild the sandbox images too | `docker rmi oa-lab-python oa-lab-node oa-lab-java` then `docker compose up` (they are rebuilt on start) |
+| List running question sandboxes | `docker ps --filter label=oa-lab=workspace` |
+| Stop all question sandboxes | `docker rm -f $(docker ps -aq --filter label=oa-lab=workspace)` |
+| Reset everything (deletes all attempts) | `docker compose down` then delete the `data/` folder |
+
 Without Compose (one `docker run`):
 
 ```bash
