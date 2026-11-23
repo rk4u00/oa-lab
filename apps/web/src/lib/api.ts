@@ -178,6 +178,7 @@ export function frameworkLabel(rt?: Runtime) {
   if (f === 'node' || f.includes('javascript')) return 'Node.js';
   if (f.includes('python')) return 'Python';
   if (f.includes('java')) return 'Java';
+  if (f.includes('cmake') || f === 'cpp' || f === 'c++' || rt?.language === 'cpp') return 'C++';
   return rt?.framework ?? rt?.language ?? 'Other';
 }
 

@@ -16,20 +16,21 @@ export interface NavLocation {
   kind: 'definition' | 'module' | 'assignment' | 'reference';
 }
 
-type Family = 'python' | 'js' | 'java' | 'other';
+type Family = 'python' | 'js' | 'java' | 'cpp' | 'other';
 const FAMILY_EXT: Record<Family, string[]> = {
   python: ['.py'],
   js: ['.js', '.cjs', '.mjs', '.jsx', '.ts', '.tsx'],
   java: ['.java', '.kt'],
+  cpp: ['.cpp', '.cc', '.cxx', '.c', '.h', '.hpp', '.hh'],
   other: [],
 };
 const MAX_FILES = 4000;
 const MAX_FILE_BYTES = 512_000;
-const SEARCHABLE = /\.(py|js|cjs|mjs|jsx|ts|tsx|java|kt|html|json|yml|yaml|properties|sql|md)$/i;
+const SEARCHABLE = /\.(py|js|cjs|mjs|jsx|ts|tsx|java|kt|cpp|cc|cxx|c|h|hpp|hh|html|json|yml|yaml|properties|sql|md)$/i;
 
 export function familyOf(p: string): Family {
   const ext = path.extname(p).toLowerCase();
-  for (const f of ['python', 'js', 'java'] as Family[]) if (FAMILY_EXT[f].includes(ext)) return f;
+  for (const f of ['python', 'js', 'java', 'cpp'] as Family[]) if (FAMILY_EXT[f].includes(ext)) return f;
   return 'other';
 }
 
@@ -67,6 +68,21 @@ function definitionPatterns(family: Family, sym: string): { re: RegExp; kind: Na
         },
         { re: new RegExp(`^\\s*(?:(?:public|private|protected|static|final|transient|volatile)\\s+)+[\\w.<>\\[\\],?\\s]+?\\s+${S}\\s*[;=]`), kind: 'assignment', weight: 60 },
       ];
+    case 'cpp': {
+      const notStmt = `(?!\\s*(?:return|if|while|for|switch|else|case|throw|delete|new|sizeof|co_return)\\b)`;
+      return [
+        { re: new RegExp(`\\b(?:class|struct|union|enum(?:\\s+class)?|namespace)\\s+${S}\\b(?!\\s*;)`), kind: 'definition', weight: 100 },
+        { re: new RegExp(`^\\s*#\\s*define\\s+${S}\\b`), kind: 'definition', weight: 95 },
+        { re: new RegExp(`\\busing\\s+${S}\\s*=`), kind: 'definition', weight: 90 },
+        { re: new RegExp(`\\btypedef\\b.*\\b${S}\\s*;`), kind: 'definition', weight: 90 },
+        // A function definition: `Type [Class::]name(args) [const] {` (no trailing `;`).
+        { re: new RegExp(`^${notStmt}[\\w:<>,\\s*&~\\[\\]]*?\\b(?:\\w+::)*${S}\\s*\\([^;]*$`), kind: 'definition', weight: 85 },
+        // A declaration in a header: `Type name(args);`
+        { re: new RegExp(`^${notStmt}\\s*[\\w:<>,\\s*&~]+\\s+${S}\\s*\\([^)]*\\)?[^{]*;\\s*$`), kind: 'assignment', weight: 50 },
+        // Variables / members: `Type name;` or `Type name = …;`
+        { re: new RegExp(`^${notStmt}\\s*[\\w:<>,\\s*&]+\\s+${S}\\s*(?:=|;|\\{|\\[)`), kind: 'assignment', weight: 40 },
+      ];
+    }
     default:
       return [];
   }
@@ -111,6 +127,8 @@ function importHints(lines: string[], family: Family): Map<string, string> {
       }
     } else if (family === 'js' && (m = l.match(/(?:const|let|var|import)\s+(\w+)\s*(?:=\s*require\(\s*|from\s*)['"]([^'"]+)['"]/))) {
       hints.set(m[1], m[2]);
+    } else if (family === 'cpp' && (m = l.match(/^\s*#\s*include\s*"([^"]+)"/))) {
+      hints.set(`#include:${m[1]}`, m[1]);
     } else if (family === 'java' && (m = l.match(/^\s*import\s+(?:static\s+)?([\w.]+)\.(\w+)\s*;/))) {
       hints.set(m[2], `${m[1]}.${m[2]}`);
     }
@@ -161,6 +179,8 @@ export async function findDefinitions(root: string, symbol: string, fromPath: st
         let score = p.weight;
         if (fromHint) score += 200;
         if (f === fromPath) score += 50;
+        // C++: an out-of-line body `Class::name(` is the real definition, not the header declaration.
+        if (family === 'cpp' && new RegExp(`::\\s*${esc(symbol)}\\s*\\(`).test(text) && !/;\s*$/.test(text)) score += 20;
         if (isTest) score -= 60;
         scored.push({ path: f, line: i + 1, column: col, endColumn: col + symbol.length, preview: text.trim().slice(0, 200), kind: p.kind, score });
         break;

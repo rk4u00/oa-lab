@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 
-export const IGNORED_DIRS = new Set(['node_modules', '.git', '__pycache__', '.pytest_cache', '.oa', '.venv', 'target', 'dist', '.next']);
+export const IGNORED_DIRS = new Set(['node_modules', '.git', '__pycache__', '.pytest_cache', '.oa', '.venv', 'target', 'dist', '.next', 'build', 'cmake-build-debug', 'cmake-build-release']);
 
 /** Resolve `rel` inside `root`, rejecting traversal and symlink escapes. */
 export async function safeResolve(root: string, rel: string): Promise<string> {

@@ -1,0 +1,28 @@
+{
+  "id": "category-engine-cpp-001",
+  "title": "Category Browse Engine (C++)",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "hard",
+  "durationMinutes": 90,
+  "description": "A C++17 batch service that ranks products for storefront category pages is returning wrong products, wrong counts and sometimes nothing. Debug it until its output matches the specification.",
+  "taskFile": "TASK.md",
+  "starterDir": "starter",
+  "runtime": { "language": "cpp", "framework": "cmake", "version": "C++17", "image": "oa-lab-cpp:latest" },
+  "workspace": { "root": "/workspace", "entrypoint": "src/main.cpp" },
+  "execution": {
+    "test": "mkdir -p .oa && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug > .oa/cmake.log 2>&1 || { cat .oa/cmake.log; exit 1; }; cmake --build build -j2 && python3 .oa/support/grade.py --binary build/category_engine --smoke data --suite 'sample:tests/fixtures/mini:tests/fixtures/mini/expected_results.json' --junit .oa/results.xml",
+    "finalTest": "rm -rf build && mkdir -p .oa && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug > .oa/cmake.log 2>&1 || { cat .oa/cmake.log; exit 1; }; cmake --build build -j2 && python3 .oa/support/grade.py --binary build/category_engine --smoke data --suite 'sample:tests/fixtures/mini:tests/fixtures/mini/expected_results.json' --suite 'hidden:data:.oa/hidden/data/expected_results.json:hidden' --junit .oa/results.xml",
+    "supportDir": "support",
+    "hiddenDir": "hidden",
+    "resultFormat": "junit",
+    "resultPath": ".oa/results.xml",
+    "timeoutSeconds": 240,
+    "env": {}
+  },
+  "resources": { "memoryMb": 1536, "cpus": 2, "pids": 512, "network": false },
+  "scoring": { "type": "test-pass-rate", "maxScore": 100 },
+  "features": { "terminal": true, "editor": true, "aiCoach": true, "gitDiff": true },
+  "readOnly": ["tests/", "data/", "third_party/"],
+  "provenance": { "source": "user-provided", "author": "OA Lab user upload", "license": "Provided by the repository owner" }
+}

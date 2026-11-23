@@ -14,7 +14,14 @@ export function parseJUnit(xml: string): TestCaseResult[] {
     for (const tc of arr<any>(suite.testcase)) {
       const name = [tc['@_classname'], tc['@_name']].filter(Boolean).join('::');
       const failure = tc.failure ?? tc.error;
-      const msg = (f: any) => (typeof f === 'string' ? f : [f?.['@_message'], f?.['#text']].filter(Boolean).join('\n'));
+      const msg = (f: any) => {
+        if (typeof f === 'string') return f;
+        const m: string | undefined = f?.['@_message'];
+        const t: string | undefined = f?.['#text'];
+        // Many reporters repeat the message as the first line of the body; don't print it twice.
+        if (m && t && String(t).startsWith(String(m))) return String(t);
+        return [m, t].filter(Boolean).join('\n');
+      };
       let status: TestCaseResult['status'] = 'passed';
       if (tc.skipped !== undefined) status = 'skipped';
       if (tc.error !== undefined) status = 'error';

@@ -166,6 +166,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
       await fs.rm(path.join(d.repo, '.oa', 'prepared.ok'), { force: true });
       await copyDir(c.starterPath, d.pristine, (rel) => !isIgnored(rel));
       await fs.mkdir(path.join(d.repo, '.oa'), { recursive: true });
+      await this.installSupport(d.repo, c);
       await makeWorldWritable(d.repo);
       await this.prisma.workspace.update({ where: { id }, data: { status: 'READY' } });
       await this.start(id);
@@ -297,6 +298,39 @@ export class WorkspacesService implements OnApplicationBootstrap {
     return { ok: true, savedAt: new Date().toISOString() };
   }
 
+  /** Copy the challenge's support files (graders, helpers) into `.oa/support/` — re-done before every run so they can't be tampered with. */
+  private async installSupport(repo: string, c: RegisteredChallenge) {
+    const sd = c.manifest.execution.supportDir;
+    if (!sd) return;
+    const dest = path.join(repo, '.oa', 'support');
+    await fs.rm(dest, { recursive: true, force: true });
+    await copyDir(path.resolve(c.dir, sd), dest);
+    await makeWorldWritable(dest).catch(() => undefined);
+  }
+
+  /**
+   * Final grading on submit: kill the sandbox (and any open terminal), restore protected files,
+   * install hidden expected results, run the final command in a fresh container, remove the hidden files.
+   */
+  async finalGrade(id: string) {
+    const ws = await this.get(id);
+    const c = this.content.challenge(ws.challengeId);
+    const ex = c.manifest.execution;
+    await this.stop(id);
+    await this.restoreProtected(id);
+    const hiddenDest = path.join(ws.hostPath, '.oa', 'hidden');
+    try {
+      if (ex.hiddenDir) {
+        await fs.rm(hiddenDest, { recursive: true, force: true });
+        await copyDir(path.resolve(c.dir, ex.hiddenDir), hiddenDest);
+        await makeWorldWritable(hiddenDest).catch(() => undefined);
+      }
+      return await this.runTests(id, undefined, { final: true, command: ex.finalTest ?? ex.test });
+    } finally {
+      await fs.rm(hiddenDest, { recursive: true, force: true });
+    }
+  }
+
   // ---------- code navigation ----------
 
   async definition(id: string, symbol: string, fromPath: string, line?: number) {
@@ -313,7 +347,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
 
   // ---------- tests ----------
 
-  async runTests(id: string, target?: string, opts: { final?: boolean } = {}) {
+  async runTests(id: string, target?: string, opts: { final?: boolean; command?: string } = {}) {
     const ws = opts.final ? await this.get(id) : await this.assertWritable(id);
     this.touch(id);
     if (this.running.has(id)) throw new ConflictException('Tests are already running');
@@ -324,8 +358,9 @@ export class WorkspacesService implements OnApplicationBootstrap {
     try {
       if (!ws.containerHandle || !(await this.driver.isWorkspaceRunning(ws.containerHandle))) await this.start(id);
       const fresh = await this.get(id);
-      let command = ex.test;
-      if (target && ex.targetTemplate) command = ex.targetTemplate.replace('{test}', ex.test).replace('{target}', target);
+      let command = opts.command ?? ex.test;
+      if (!opts.command && target && ex.targetTemplate) command = ex.targetTemplate.replace('{test}', ex.test).replace('{target}', target);
+      await this.installSupport(ws.hostPath, c);
       const resultAbs = await safeResolve(ws.hostPath, ex.resultPath);
       await fs.rm(resultAbs, { recursive: true, force: true });
       const r = await this.driver.execInWorkspace(fresh.containerHandle!, ws.hostPath, command, ex.timeoutSeconds * 1000, ex.env);

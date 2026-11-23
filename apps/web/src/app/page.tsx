@@ -7,7 +7,7 @@ import { Building2, ChevronRight, Download, ExternalLink, History, Search, Timer
 import { api, frameworkLabel, type AssessmentSummary, type ChallengeSummary, type ImportResult, type SessionListItem } from '@/lib/api';
 import { DifficultyText, ErrorBox, HealthBadge, ScorePill, Spinner, StatusBadge, TopNav } from '@/components/ui';
 
-const FRAMEWORK_ORDER = ['Django', 'Express', 'Node.js', 'Spring Boot', 'React'];
+const FRAMEWORK_ORDER = ['Django', 'Express', 'Node.js', 'Spring Boot', 'C++', 'React'];
 
 export default function Dashboard() {
   const router = useRouter();

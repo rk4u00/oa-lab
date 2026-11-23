@@ -25,7 +25,7 @@ export interface ImportOptions {
 
 export interface DetectedProject {
   rel: string;
-  kind: 'django' | 'maven' | 'node';
+  kind: 'django' | 'maven' | 'node' | 'cmake';
 }
 
 const slug = (s: string, max = 60) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, max);
@@ -49,6 +49,7 @@ export async function detectProjects(root: string): Promise<DetectedProject[]> {
     const rel = path.relative(root, dir) || '.';
     if (names.includes('manage.py')) return void found.push({ rel, kind: 'django' });
     if (names.includes('pom.xml')) return void found.push({ rel, kind: 'maven' });
+    if (names.includes('CMakeLists.txt')) return void found.push({ rel, kind: 'cmake' });
     if (names.includes('package.json')) {
       try {
         const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
@@ -115,7 +116,7 @@ async function difficultyFrom(title: string, readmePath: string | undefined): Pr
 
 async function testDirs(dir: string, kind: DetectedProject['kind']) {
   const ro: string[] = [];
-  const candidates = kind === 'maven' ? ['src/test/'] : ['tests/', 'test/', '__tests__/'];
+  const candidates = kind === 'maven' ? ['src/test/'] : kind === 'cmake' ? ['tests/', 'test/', 'third_party/'] : ['tests/', 'test/', '__tests__/'];
   for (const c of candidates) if (await exists(path.join(dir, c))) ro.push(c);
   if (kind === 'django') {
     for (const n of await fs.readdir(dir)) {
@@ -138,7 +139,7 @@ async function manifestFor(repoRoot: string, project: DetectedProject, repoSlug:
   const relFromChallenge = (p: string) => path.relative(challengeDir, p);
   const parentName = project.rel === '.' ? repoSlug : project.rel.split(path.sep).slice(-2).join(' ');
   const baseTitle = await titleFrom(rd, parentName);
-  const label = { django: 'Django', maven: 'Spring Boot', node: 'Node.js' }[project.kind];
+  const label = { django: 'Django', maven: 'Spring Boot', node: 'Node.js', cmake: 'C++' }[project.kind];
   const title = baseTitle.toLowerCase().includes(label.toLowerCase()) ? baseTitle : `${baseTitle} (${label})`;
 
   let runtime: ChallengeManifest['runtime'];
@@ -170,6 +171,18 @@ async function manifestFor(repoRoot: string, project: DetectedProject, repoSlug:
       resultFormat: 'junit',
       resultPath: 'target/surefire-reports',
       timeoutSeconds: 300,
+      env: {},
+    };
+  } else if (project.kind === 'cmake') {
+    runtime = { language: 'cpp', framework: 'cmake', image: 'oa-lab-cpp:latest' };
+    const build = 'mkdir -p .oa && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug > .oa/cmake.log 2>&1 || { cat .oa/cmake.log; exit 1; }; cmake --build build -j2';
+    execution = {
+      // CTest (enable_testing/add_test) results as JUnit; projects without CTest are scored on a clean build.
+      test: `${build} && (cd build && ctest --output-on-failure --output-junit ../.oa/results.xml)`,
+      targetTemplate: '{test} -R {target}',
+      resultFormat: 'junit',
+      resultPath: '.oa/results.xml',
+      timeoutSeconds: 240,
       env: {},
     };
   } else {
@@ -204,7 +217,7 @@ async function manifestFor(repoRoot: string, project: DetectedProject, repoSlug:
     runtime,
     workspace: { root: '/workspace' },
     execution,
-    resources: { memoryMb: project.kind === 'maven' ? 2048 : 1024, cpus: project.kind === 'maven' ? 2 : 1, pids: 512, network: false },
+    resources: { memoryMb: project.kind === 'maven' ? 2048 : 1024, cpus: project.kind === 'maven' || project.kind === 'cmake' ? 2 : 1, pids: 512, network: false },
     scoring: { type: 'test-pass-rate', maxScore: 100 },
     features: { terminal: true, editor: true, aiCoach: true, gitDiff: true },
     readOnly: await testDirs(dir, project.kind),
@@ -233,7 +246,7 @@ export async function importRepository(opts: ImportOptions): Promise<ImportResul
   }
 
   const projects = await detectProjects(repoDir);
-  if (projects.length === 0) throw new Error('No Django, Spring Boot (Maven) or Node.js project with tests was found in this repository.');
+  if (projects.length === 0) throw new Error('No Django, Spring Boot (Maven), Node.js or C++ (CMake) project was found in this repository.');
   await fs.rm(path.join(repoDir, '.oa-lab'), { recursive: true, force: true });
   const company = opts.company ?? 'amazon';
   const sourceUrl = isLocal ? path.resolve(opts.source) : normalizeGitUrl(opts.source).replace(/\.git$/, '');

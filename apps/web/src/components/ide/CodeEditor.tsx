@@ -44,7 +44,7 @@ async function ensureModel(monaco: Monaco, workspaceId: string, path: string) {
  * backed by the API's workspace-wide symbol search. Registered once for every code language.
  */
 function registerNavigation(monaco: Monaco) {
-  const languages = ['python', 'javascript', 'typescript', 'java', 'kotlin'];
+  const languages = ['python', 'javascript', 'typescript', 'java', 'kotlin', 'cpp', 'c'];
   for (const language of languages) {
     monaco.languages.registerDefinitionProvider(language, {
       async provideDefinition(model, position) {
@@ -142,7 +142,7 @@ const LANGS: Record<string, string> = {
   py: 'python', js: 'javascript', cjs: 'javascript', mjs: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript',
   java: 'java', kt: 'kotlin', json: 'json', html: 'html', htm: 'html', css: 'css', scss: 'scss', md: 'markdown', yml: 'yaml', yaml: 'yaml',
   xml: 'xml', sql: 'sql', sh: 'shell', bash: 'shell', properties: 'ini', ini: 'ini', cfg: 'ini', toml: 'ini', txt: 'plaintext',
-  dockerfile: 'dockerfile', go: 'go', rb: 'ruby', php: 'php', cpp: 'cpp', c: 'c', h: 'cpp', hpp: 'cpp', cs: 'csharp', rs: 'rust',
+  dockerfile: 'dockerfile', go: 'go', rb: 'ruby', php: 'php', cpp: 'cpp', cc: 'cpp', cxx: 'cpp', c: 'c', h: 'cpp', hpp: 'cpp', hh: 'cpp', cmake: 'plaintext', cs: 'csharp', rs: 'rust',
 };
 
 export function languageFor(path: string) {

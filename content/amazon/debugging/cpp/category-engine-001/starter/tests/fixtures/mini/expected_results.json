@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "query_id": "s1",
+      "category_id": 1,
+      "region": "IN",
+      "matched_count": 4,
+      "products": [
+        {
+          "product_id": 102,
+          "name": "Garden Fork",
+          "popularity": 80.0
+        },
+        {
+          "product_id": 103,
+          "name": "Pruning Saw",
+          "popularity": 80.0
+        }
+      ]
+    },
+    {
+      "query_id": "s2",
+      "category_id": 2,
+      "region": "US",
+      "matched_count": 0,
+      "products": []
+    }
+  ]
+}

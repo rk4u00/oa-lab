@@ -136,8 +136,7 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
         let diff = '';
         if (ws.status === 'RUNNING' || ws.status === 'READY') {
           try {
-            await this.workspaces.restoreProtected(ws.id);
-            const run = await this.workspaces.runTests(ws.id, undefined, { final: true });
+            const run = await this.workspaces.finalGrade(ws.id);
             testRunId = run.id;
             score = run.total ? Math.round((run.passed / run.total) * 1000) / 10 : 0;
             diff = (await this.workspaces.diff(ws.id)).patch;

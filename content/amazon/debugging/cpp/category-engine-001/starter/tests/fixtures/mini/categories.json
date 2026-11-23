@@ -1,0 +1,7 @@
+{
+  "categories": [
+    { "id": 1, "name": "Garden" },
+    { "id": 2, "name": "Tools",       "parent_id": 1 },
+    { "id": 3, "name": "Hand Tools",  "parent_id": 2 }
+  ]
+}

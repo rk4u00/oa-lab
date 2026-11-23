@@ -29,6 +29,12 @@ export const ChallengeManifest = z.object({
     /** junit = JUnit XML file or directory of XML files; jest-json = `jest --json` output; exit-code = whole suite pass/fail. */
     resultFormat: z.enum(['junit', 'jest-json', 'exit-code']).default('junit'),
     resultPath: z.string().default('.oa/results.xml'),
+    /** Command used for final grading on submit (defaults to `test`). Runs after hidden files are installed. */
+    finalTest: z.string().optional(),
+    /** Directory (relative to the challenge dir) copied to `.oa/support/` before every test run (graders, fixtures). */
+    supportDir: z.string().optional(),
+    /** Directory (relative to the challenge dir) copied to `.oa/hidden/` ONLY for final grading, then removed. */
+    hiddenDir: z.string().optional(),
     /** How a test target (file / -k expression / test class) is appended to the test command. Use {target}. */
     targetTemplate: z.string().optional(),
     timeoutSeconds: z.number().int().positive().default(120),

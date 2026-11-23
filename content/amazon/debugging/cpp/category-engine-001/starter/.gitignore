@@ -1,0 +1,8 @@
+build/
+build-*/
+cmake-build-*/
+results.json
+mini_results.json
+.vscode/
+.idea/
+compile_commands.json

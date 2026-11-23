@@ -10,7 +10,7 @@ for v in HTTPS_PROXY HTTP_PROXY NO_PROXY https_proxy http_proxy no_proxy; do
   if [ -n "${!v:-}" ]; then args+=(--build-arg "$v"); fi
 done
 if [ -n "${HTTPS_PROXY:-}${https_proxy:-}" ]; then args+=(--network host); fi
-targets=("${@:-python node java}")
+targets=("${@:-python node java cpp}")
 for t in ${targets[@]}; do
   echo "==> oa-lab-$t"
   DOCKER_BUILDKIT=1 docker build "${args[@]}" -t "oa-lab-$t:latest" -f "infrastructure/docker/Dockerfile.$t" .
