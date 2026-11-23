@@ -3,8 +3,98 @@
 import { useEffect, useRef, useState } from 'react';
 import Editor, { loader, type OnMount } from '@monaco-editor/react';
 import { Spinner } from '@/components/ui';
+import { api } from '@/lib/api';
 
 let monacoReady: Promise<void> | null = null;
+
+/** The workspace the editor is currently showing; code-navigation providers read it. */
+export interface NavigationContext {
+  workspaceId: string;
+  openAt: (path: string, line: number, column: number) => void;
+}
+let navCtx: NavigationContext | null = null;
+export function setNavigationContext(ctx: NavigationContext | null) {
+  navCtx = ctx;
+}
+
+type Monaco = typeof import('monaco-editor/esm/vs/editor/editor.api.js');
+
+/** @monaco-editor/react names models with Uri.parse(path); keep the reverse mapping. */
+const uriToPath = new Map<string, string>();
+function uriFor(monaco: Monaco, path: string) {
+  const uri = monaco.Uri.parse(path);
+  uriToPath.set(uri.toString(), path);
+  return uri;
+}
+function pathOf(uri: { toString(): string; path: string }) {
+  return uriToPath.get(uri.toString()) ?? uri.path.replace(/^\//, '');
+}
+
+/** Make sure a model exists for `path` so Monaco can peek / jump into it. */
+async function ensureModel(monaco: Monaco, workspaceId: string, path: string) {
+  const uri = uriFor(monaco, path);
+  if (monaco.editor.getModel(uri)) return uri;
+  const f = await api.file(workspaceId, path);
+  if (!monaco.editor.getModel(uri)) monaco.editor.createModel(f.binary ? '' : f.content, languageFor(path), uri);
+  return uri;
+}
+
+/**
+ * Go to Definition (Ctrl/Cmd+click, F12), Peek Definition (Alt+F12) and Find References (Shift+F12),
+ * backed by the API's workspace-wide symbol search. Registered once for every code language.
+ */
+function registerNavigation(monaco: Monaco) {
+  const languages = ['python', 'javascript', 'typescript', 'java', 'kotlin'];
+  for (const language of languages) {
+    monaco.languages.registerDefinitionProvider(language, {
+      async provideDefinition(model, position) {
+        const ctx = navCtx;
+        const word = model.getWordAtPosition(position);
+        if (!ctx || !word) return null;
+        const from = pathOf(model.uri);
+        uriToPath.set(model.uri.toString(), from);
+        const locs = await api.definition(ctx.workspaceId, word.word, from, position.lineNumber).catch(() => []);
+        const out = [];
+        for (const l of locs) {
+          const uri = await ensureModel(monaco, ctx.workspaceId, l.path).catch(() => null);
+          if (uri) out.push({ uri, range: new monaco.Range(l.line, l.column, l.line, l.endColumn) });
+        }
+        return out;
+      },
+    });
+    monaco.languages.registerReferenceProvider(language, {
+      async provideReferences(model, position) {
+        const ctx = navCtx;
+        const word = model.getWordAtPosition(position);
+        if (!ctx || !word) return [];
+        const locs = await api.references(ctx.workspaceId, word.word, pathOf(model.uri)).catch(() => []);
+        const files = [...new Set(locs.map((l) => l.path))].slice(0, 60);
+        await Promise.all(files.map((f) => ensureModel(monaco, ctx.workspaceId, f).catch(() => null)));
+        return locs
+          .filter((l) => files.includes(l.path))
+          .map((l) => ({ uri: uriFor(monaco, l.path), range: new monaco.Range(l.line, l.column, l.line, l.endColumn) }));
+      },
+    });
+  }
+  // Jumping into another file: open it as a tab in OA Lab instead of a Monaco-internal editor.
+  monaco.editor.registerEditorOpener({
+    openCodeEditor(_source, resource, selectionOrPosition) {
+      const ctx = navCtx;
+      if (!ctx) return false;
+      let line = 1;
+      let column = 1;
+      if (selectionOrPosition && 'startLineNumber' in selectionOrPosition) {
+        line = selectionOrPosition.startLineNumber;
+        column = selectionOrPosition.startColumn;
+      } else if (selectionOrPosition) {
+        line = selectionOrPosition.lineNumber;
+        column = selectionOrPosition.column;
+      }
+      ctx.openAt(pathOf(resource), line, column);
+      return true;
+    },
+  });
+}
 
 /** Load Monaco from the local bundle (never from a CDN) — OA Lab must work offline. */
 function ensureMonaco() {
@@ -13,7 +103,9 @@ function ensureMonaco() {
       (self as unknown as { MonacoEnvironment: unknown }).MonacoEnvironment = {
         getWorker: () => new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url), { type: 'module' }),
       };
-      const monaco = await import('monaco-editor/esm/vs/editor/editor.api.js');
+      // edcore.main = the core API + every editor contribution (go to definition, peek, find/replace,
+      // context menu, folding, command palette…). editor.api alone ships none of those.
+      const monaco = (await import('monaco-editor/esm/vs/editor/edcore.main.js')) as unknown as typeof import('monaco-editor/esm/vs/editor/editor.api.js');
       // Syntax highlighting for every language Monaco ships (Monarch tokenizers, no language servers).
       await import('monaco-editor/esm/vs/basic-languages/monaco.contribution.js');
       monaco.editor.defineTheme('oa-light', {
@@ -31,6 +123,12 @@ function ensureMonaco() {
           'editor.selectionBackground': '#1e9d5033',
           'editorCursor.foreground': '#0e141e',
         },
+      });
+      registerNavigation(monaco as unknown as Monaco);
+      // Monaco cancels superseded requests (e.g. moving the mouse while Ctrl is held) by rejecting
+      // with a "Canceled" error; that is expected and should not surface as an unhandled rejection.
+      window.addEventListener('unhandledrejection', (e) => {
+        if ((e.reason as { name?: string; message?: string })?.name === 'Canceled' || (e.reason as Error)?.message === 'Canceled') e.preventDefault();
       });
       loader.config({ monaco });
     })();
@@ -58,14 +156,18 @@ export function CodeEditor({
   readOnly,
   onChange,
   onSave,
+  reveal,
 }: {
   path: string;
   value: string;
   readOnly: boolean;
   onChange: (v: string) => void;
   onSave: () => void;
+  /** Scroll to and select this position (changes to `nonce` re-trigger). */
+  reveal?: { line: number; column: number; nonce: number } | null;
 }) {
   const [ready, setReady] = useState(false);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const saveRef = useRef(onSave);
   saveRef.current = onSave;
 
@@ -75,8 +177,21 @@ export function CodeEditor({
 
   const onMount: OnMount = (editor, monaco) => {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => saveRef.current());
+    editorRef.current = editor;
     editor.focus();
   };
+
+  useEffect(() => {
+    const ed = editorRef.current;
+    if (!ed || !reveal) return;
+    // Wait a tick so the model for a newly opened tab is attached.
+    const t = setTimeout(() => {
+      ed.revealLineInCenter(reveal.line);
+      ed.setSelection({ startLineNumber: reveal.line, startColumn: reveal.column, endLineNumber: reveal.line, endColumn: reveal.column });
+      ed.focus();
+    }, 30);
+    return () => clearTimeout(t);
+  }, [reveal?.nonce, path, reveal]);
 
   if (!ready) return <div className="grid h-full place-items-center"><Spinner /></div>;
   return (
@@ -100,6 +215,9 @@ export function CodeEditor({
         smoothScrolling: true,
         padding: { top: 8 },
         bracketPairColorization: { enabled: true },
+        // Ctrl/Cmd+click → go to definition; multiple matches open the peek view.
+        gotoLocation: { multipleDefinitions: 'peek', multipleReferences: 'peek' },
+        definitionLinkOpensInPeek: false,
       }}
     />
   );

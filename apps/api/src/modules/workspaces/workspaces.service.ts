@@ -10,6 +10,7 @@ import { env, REPO_ROOT } from '../../common/env';
 import { copyDir, exists, IGNORED_DIRS, makeWorldWritable, safeResolve } from '../../common/fs-utils';
 import { PrismaService } from '../../common/prisma.service';
 import { ContentService, RegisteredChallenge } from '../content/content.service';
+import { findDefinitions, findReferences } from './navigation';
 
 const MAX_FILE_BYTES = 1_000_000;
 const DEFAULT_COACH_PROMPT = `You are an assessment debugging coach.
@@ -269,6 +270,20 @@ export class WorkspacesService implements OnApplicationBootstrap {
     await fs.writeFile(abs, content);
     await fs.chmod(abs, 0o666).catch(() => undefined);
     return { ok: true, savedAt: new Date().toISOString() };
+  }
+
+  // ---------- code navigation ----------
+
+  async definition(id: string, symbol: string, fromPath: string, line?: number) {
+    const ws = await this.get(id);
+    await safeResolve(ws.hostPath, fromPath);
+    return findDefinitions(ws.hostPath, symbol, fromPath, line);
+  }
+
+  async references(id: string, symbol: string, fromPath: string) {
+    const ws = await this.get(id);
+    await safeResolve(ws.hostPath, fromPath);
+    return findReferences(ws.hostPath, symbol, fromPath);
   }
 
   // ---------- tests ----------

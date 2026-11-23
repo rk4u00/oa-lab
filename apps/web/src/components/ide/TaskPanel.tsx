@@ -36,7 +36,7 @@ export function TaskPanel({ workspaceId, task, aiCoach, aiPolicy }: { workspaceI
 
   return (
     <div className="flex h-full flex-col bg-panel">
-      <div className="flex h-11 shrink-0 items-end gap-1 border-b border-line px-4">
+      <div className="flex h-11 shrink-0 items-end gap-1 overflow-x-auto border-b border-line px-3">
         <TabButton active={tab === 'task'} onClick={() => setTab('task')}><FileText className="h-3.5 w-3.5" /> Question</TabButton>
         {showCoach && (
           <TabButton active={tab === 'coach'} onClick={() => { setTab('coach'); if (!prompt) void loadCoach(); }}>
@@ -44,7 +44,7 @@ export function TaskPanel({ workspaceId, task, aiCoach, aiPolicy }: { workspaceI
           </TabButton>
         )}
       </div>
-      <div className="min-h-0 flex-1 overflow-auto px-6 py-5">
+      <div className="min-h-0 flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5">
         {tab === 'task' ? (
           <Markdown>{task}</Markdown>
         ) : (
@@ -52,16 +52,16 @@ export function TaskPanel({ workspaceId, task, aiCoach, aiPolicy }: { workspaceI
             <p className="text-muted">
               Paste this prompt into your AI assistant (Claude Code, Cursor, Copilot, …). It contains the task and your latest failing tests, and asks for <strong className="text-fg">hints, not edits</strong>.
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button className="btn btn-sm btn-primary" onClick={copy} disabled={!prompt}>
                 {copied ? <Check className="h-3 w-3" /> : <ClipboardCopy className="h-3 w-3" />} {copied ? 'Copied' : 'Copy prompt'}
               </button>
               <button className="btn btn-sm" onClick={loadCoach} disabled={loading}>
-                {loading ? <Spinner className="h-3 w-3" /> : <RefreshCw className="h-3 w-3" />} Refresh with latest run
+                {loading ? <Spinner className="h-3 w-3" /> : <RefreshCw className="h-3 w-3" />} Refresh
               </button>
             </div>
             <ErrorBox error={error} />
-            {prompt && <pre className="whitespace-pre-wrap rounded border border-line bg-raised p-3 font-mono text-[11px] leading-relaxed text-fg/80">{prompt}</pre>}
+            {prompt && <pre className="whitespace-pre-wrap break-words rounded border border-line bg-raised p-3 font-mono text-[11px] leading-relaxed text-fg/80">{prompt}</pre>}
           </div>
         )}
       </div>
@@ -73,7 +73,7 @@ export function TabButton({ active, onClick, children }: { active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={`-mb-px flex h-full items-center gap-1.5 border-b-2 px-3 text-[13px] font-semibold transition ${active ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}
+      className={`-mb-px flex h-full shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 text-[13px] font-semibold transition ${active ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}
     >
       {children}
     </button>

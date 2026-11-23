@@ -162,7 +162,12 @@ export const api = {
   diff: (id: string) => req<Diff>(`/workspaces/${enc(id)}/diff`),
   reset: (id: string) => req<{ ok: boolean }>(`/workspaces/${enc(id)}/reset`, { method: 'POST' }),
   coach: (id: string) => req<{ prompt: string }>(`/workspaces/${enc(id)}/coach`),
+  definition: (id: string, symbol: string, path: string, line?: number) =>
+    req<NavLocation[]>(`/workspaces/${enc(id)}/definition?symbol=${enc(symbol)}&path=${enc(path)}${line ? `&line=${line}` : ''}`),
+  references: (id: string, symbol: string, path: string) => req<NavLocation[]>(`/workspaces/${enc(id)}/references?symbol=${enc(symbol)}&path=${enc(path)}`),
 };
+
+export interface NavLocation { path: string; line: number; column: number; endColumn: number; preview: string; kind: string }
 
 export function frameworkLabel(rt?: Runtime) {
   const f = (rt?.framework ?? rt?.language ?? '').toLowerCase();

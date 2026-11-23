@@ -28,6 +28,18 @@ export class WorkspacesController {
     return this.ws.runTests(id, b.data.target?.trim() || undefined);
   }
 
+  @Get(':id/definition')
+  definition(@Param('id') id: string, @Query('symbol') symbol: string, @Query('path') p: string, @Query('line') line?: string) {
+    if (!symbol || !p) throw new BadRequestException('symbol and path are required');
+    return this.ws.definition(id, symbol, p, line ? Number(line) : undefined);
+  }
+
+  @Get(':id/references')
+  references(@Param('id') id: string, @Query('symbol') symbol: string, @Query('path') p: string) {
+    if (!symbol || !p) throw new BadRequestException('symbol and path are required');
+    return this.ws.references(id, symbol, p);
+  }
+
   @Get(':id/test-runs') runs(@Param('id') id: string) { return this.ws.testRuns(id); }
   @Get(':id/test-runs/latest') latest(@Param('id') id: string) { return this.ws.latestRun(id); }
   @Get(':id/diff') diff(@Param('id') id: string) { return this.ws.diff(id); }

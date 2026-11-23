@@ -8,7 +8,7 @@ import { ArrowLeft, CheckCircle2, Clock, Columns2, Eye, Pencil, FileCode2, FileD
 import type { FileNode } from '@oa-lab/shared';
 import { api, formatDuration, frameworkLabel, type Diff, type Session, type TestRun, type WorkspaceDetails } from '@/lib/api';
 import { ConfirmDialog, ErrorBox, Logo, Spinner, useCountdown } from '@/components/ui';
-import { CodeEditor } from '@/components/ide/CodeEditor';
+import { CodeEditor, setNavigationContext } from '@/components/ide/CodeEditor';
 import { Markdown } from '@/components/Markdown';
 import { FileTree, isReadOnlyPath } from '@/components/ide/FileTree';
 import { TabButton, TaskPanel } from '@/components/ide/TaskPanel';
@@ -187,6 +187,18 @@ function Ide({
 
   openFileRef.current = openFile;
 
+  // Go-to-definition across files: open the target as a tab and reveal the line.
+  const [reveal, setReveal] = useState<{ path: string; line: number; column: number; nonce: number } | null>(null);
+  useEffect(() => {
+    setNavigationContext({
+      workspaceId,
+      openAt: (path, line, column) => {
+        void openFile(path).then(() => setReveal({ path, line, column, nonce: Date.now() }));
+      },
+    });
+    return () => setNavigationContext(null);
+  }, [workspaceId, openFile]);
+
   const save = useCallback(
     async (path: string) => {
       const tab = tabsRef.current.find((t) => t.path === path);
@@ -349,8 +361,8 @@ function Ide({
         ) : (
           <span className="flex items-center gap-1.5 rounded bg-white/10 px-3 py-1.5 text-xs text-white/80"><Lock className="h-3.5 w-3.5" /> Section {details.section.status.toLowerCase()}</span>
         )}
-        <Link href={`/assessment/${sessionId}`} className="btn-nav">
-          <LayoutList className="h-3.5 w-3.5" /> Overview
+        <Link href={`/assessment/${sessionId}`} className="btn-nav shrink-0" title="Assessment overview">
+          <LayoutList className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Overview</span>
         </Link>
       </header>
 
@@ -486,6 +498,7 @@ function Ide({
                               readOnly={activeTab.readOnly || !active}
                               onChange={(v) => setTabs((ts) => ts.map((t) => (t.path === activeTab.path ? { ...t, content: v } : t)))}
                               onSave={() => void save(activeTab.path)}
+                              reveal={reveal && reveal.path === activeTab.path ? reveal : null}
                             />
                               );
                               const preview = (
@@ -510,7 +523,7 @@ function Ide({
                             <div className="space-y-2">
                               <FileCode2 className="mx-auto h-8 w-8 text-line" />
                               <p className="text-sm font-medium text-fg/80">Select a file to start editing</p>
-                              <p className="text-xs text-muted">Files autosave · Ctrl/Cmd+S to save · Ctrl/Cmd+&apos; to run tests</p>
+                              <p className="text-xs text-muted">Ctrl/Cmd+click a symbol to go to its definition · Shift+F12 references · Ctrl/Cmd+S save · Ctrl/Cmd+&apos; run tests</p>
                             </div>
                           </div>
                         )}
@@ -522,7 +535,7 @@ function Ide({
 
                 {/* Console */}
                 <Panel defaultSize={38} minSize={12} className="flex flex-col border-t border-line">
-                  <div className="flex h-10 shrink-0 items-end gap-1 border-b border-line bg-panel px-3">
+                  <div className="flex h-10 shrink-0 items-end gap-1 overflow-x-auto border-b border-line bg-panel px-3">
                     <TabButton active={bottom === 'tests'} onClick={() => setBottom('tests')}>
                       <FlaskConical className="h-3.5 w-3.5" /> Test Results
                       {testRun && (
@@ -551,7 +564,7 @@ function Ide({
                           <div className="flex-1" />
                           {details.manifest.supportsTarget && (
                             <input
-                              className="input h-8 w-72 font-mono text-xs"
+                              className="input h-8 w-full font-mono text-xs sm:w-72"
                               placeholder="Run a subset: file, -k expr or test class"
                               value={target}
                               onChange={(e) => setTarget(e.target.value)}
@@ -594,12 +607,12 @@ function Ide({
               </PanelGroup>
 
               {/* Action bar */}
-              <div className="flex h-14 shrink-0 items-center gap-3 border-t border-line bg-panel px-4">
+              <div className="flex h-14 shrink-0 items-center gap-2 border-t border-line bg-panel px-3 sm:gap-3 sm:px-4">
                 <button className="btn btn-ghost btn-sm text-muted" onClick={toggleTask} title="Toggle question panel">
                   {taskOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-                  {taskOpen ? 'Hide question' : 'Show question'}
+                  <span className="hidden lg:inline">{taskOpen ? 'Hide question' : 'Show question'}</span>
                 </button>
-                <span className="hidden items-center gap-1.5 text-[11px] text-muted md:flex">
+                <span className="hidden min-w-0 items-center gap-1.5 truncate text-[11px] text-muted xl:flex">
                   <ShieldCheck className="h-3.5 w-3.5 text-ok" />
                   {details.driver === 'docker' ? 'Sandboxed · no network' : 'Local driver'} · {details.manifest.runtime.image}
                 </span>
