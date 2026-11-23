@@ -78,6 +78,13 @@ model Submission {
   testRun          TestRun?       @relation(fields: [testRunId], references: [id])
   diff             String
   score            Float
+  /// Copied from the grading run / section so history survives retries and workspace cleanup.
+  passed           Int?
+  total            Int?
+  timeSpentMs      Int?
+  testRuns         Int?
+  /// Set when the section is retried: the attempt stays in the history but is no longer the current result.
+  supersededAt     DateTime?
   createdAt        DateTime       @default(now())
 }
 

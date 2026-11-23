@@ -17,6 +17,9 @@
   --nav: 14 20 30;          /* dark navy top bar */
   --navline: 38 48 62;
   --console: 17 22 29;
+  /* Chart series (validated pair: dataviz validate_palette, light surface) */
+  --series-1: 42 120 214;   /* blue */
+  --series-2: 74 58 167;    /* violet */
   color-scheme: light;
 }
 

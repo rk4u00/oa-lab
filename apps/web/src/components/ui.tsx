@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Loader2, XCircle } from 'lucide-react';
 import { api, type Health } from '@/lib/api';
@@ -29,11 +30,40 @@ export function LogoMark({ className = 'h-7 w-7' }: { className?: string }) {
 export function TopNav({ children, href = '/' }: { children?: React.ReactNode; href?: string }) {
   return (
     <header className="topnav sticky top-0 z-30">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-5">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-5">
         <Logo href={href} />
         {children}
       </div>
     </header>
+  );
+}
+
+const NAV = [
+  { href: '/', label: 'Practice' },
+  { href: '/assessments', label: 'Assessments' },
+  { href: '/submissions', label: 'Submissions' },
+  { href: '/progress', label: 'Progress' },
+];
+
+/** Main navigation shared by the Practice, Assessments, Submissions and Progress pages. */
+export function MainNav() {
+  const path = usePathname();
+  return (
+    <nav className="-mx-1 flex min-w-0 items-center gap-0.5 overflow-x-auto text-sm font-medium text-white/70">
+      {NAV.map((n) => {
+        const active = n.href === path;
+        return (
+          <Link
+            key={n.href}
+            href={n.href}
+            aria-current={active ? 'page' : undefined}
+            className={`shrink-0 rounded px-2.5 py-1.5 hover:bg-white/10 hover:text-white sm:px-3 ${active ? 'bg-white/10 text-white' : ''}`}
+          >
+            {n.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -61,7 +91,7 @@ export function HealthBadge() {
   useEffect(() => {
     api.health().then(setH, () => setErr(true));
   }, []);
-  const pill = 'inline-flex items-center gap-1.5 rounded-full border border-white/15 px-2.5 py-0.5 text-[11px] font-medium';
+  const pill = 'hidden shrink-0 items-center gap-1.5 rounded-full sm:inline-flex border border-white/15 px-2.5 py-0.5 text-[11px] font-medium';
   if (err) return <span className={`${pill} text-red-300`}>● API offline</span>;
   if (!h) return <span className={`${pill} text-white/60`}><Spinner className="h-3 w-3" /> connecting</span>;
   if (h.driver === 'local') return <span className={`${pill} text-amber-300`} title="Code runs on the host without isolation">● Local driver (unsafe)</span>;

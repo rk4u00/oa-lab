@@ -136,6 +136,57 @@ export interface Results {
   events: { type: string; at: string; payload: unknown }[];
 }
 
+export interface Attempt {
+  id: string;
+  challengeId: string;
+  at: string;
+  score: number;
+  passed: number | null;
+  total: number | null;
+  timeSpentMs: number | null;
+  testRuns: number | null;
+  sessionId: string;
+  assessmentId: string;
+  mode: 'practice' | 'assessment';
+  current: boolean;
+  recovered: boolean;
+}
+export interface ChallengeProgress {
+  id: string;
+  title: string;
+  difficulty: ChallengeSummary['difficulty'] | null;
+  runtime: Runtime | null;
+  attempts: Attempt[];
+  count: number;
+  first: number;
+  latest: number;
+  best: number;
+  improvement: number;
+  bestImprovement: number;
+  mastered: boolean;
+  totalTimeMs: number;
+  avgTimeMs: number | null;
+  lastAt: string;
+}
+export interface Analytics {
+  overview: {
+    attempts: number;
+    questions: number;
+    mastered: number;
+    repeated: number;
+    improved: number;
+    avgFirst: number | null;
+    avgBest: number | null;
+    avgLatest: number | null;
+    totalTimeMs: number;
+    firstAt: string | null;
+    lastAt: string | null;
+  };
+  timeline: { at: string; challengeId: string; title: string; score: number; avgBest: number }[];
+  challenges: ChallengeProgress[];
+  assessments: { id: string; title: string; runs: { sessionId: string; at: string; score: number; status: string }[]; first: number; latest: number; best: number; improvement: number }[];
+}
+
 const enc = encodeURIComponent;
 
 export const api = {
@@ -153,6 +204,7 @@ export const api = {
   submitSession: (id: string) => req<Session>(`/sessions/${enc(id)}/submit`, { method: 'POST' }),
   abandonSession: (id: string) => req<Session>(`/sessions/${enc(id)}/abandon`, { method: 'POST' }),
   results: (id: string) => req<Results>(`/sessions/${enc(id)}/results`),
+  analytics: () => req<Analytics>('/analytics'),
   workspace: (id: string) => req<WorkspaceDetails>(`/workspaces/${enc(id)}`),
   startWorkspace: (id: string) => req<WorkspaceDetails>(`/workspaces/${enc(id)}/start`, { method: 'POST' }),
   files: (id: string) => req<FileNode[]>(`/workspaces/${enc(id)}/files`),

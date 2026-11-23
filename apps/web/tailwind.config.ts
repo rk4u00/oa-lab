@@ -18,6 +18,8 @@ export default {
         nav: 'rgb(var(--nav) / <alpha-value>)',
         navline: 'rgb(var(--navline) / <alpha-value>)',
         console: 'rgb(var(--console) / <alpha-value>)',
+        'series-1': 'rgb(var(--series-1) / <alpha-value>)',
+        'series-2': 'rgb(var(--series-2) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

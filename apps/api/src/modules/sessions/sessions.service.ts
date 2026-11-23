@@ -88,7 +88,7 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
           score: sa.score,
           challenges: (def?.challenges ?? []).map((cid) => {
             const ws = sa.workspaces.find((w) => w.challengeId === cid);
-            const sub = sa.submissions.find((x) => x.challengeId === cid);
+            const sub = sa.submissions.find((x) => x.challengeId === cid && !x.supersededAt);
             return { id: cid, title: this.content.challenge(cid).manifest.title, workspaceId: ws?.id ?? null, workspaceStatus: ws?.status ?? null, score: sub?.score ?? null };
           }),
         };
@@ -120,8 +120,9 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Re-attempt a finished (submitted / expired / skipped) section: the previous result is recorded in the
-   * session timeline, its workspace is discarded, and the section restarts with a fresh repository and timer.
+   * Re-attempt a finished (submitted / expired / skipped) section: the previous submissions are kept as
+   * superseded history (see AnalyticsService), its workspace is discarded, and the section restarts with a
+   * fresh repository and timer.
    */
   async retrySection(sessionId: string, sectionId: string) {
     const s = await this.prisma.session.findUnique({ where: { id: sessionId }, include: { sections: true } });
@@ -133,13 +134,18 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
     const other = s.sections.find((x) => x.status === 'IN_PROGRESS');
     if (other) throw new ConflictException(`Finish section "${other.sectionId}" before retrying another`);
 
-    await this.event(sessionId, 'section.retried', { sectionId, previousStatus: sa.status, previousScore: sa.score });
+    // `kept` marks retries whose submissions survive; older retry events are the only record of their score.
+    await this.event(sessionId, 'section.retried', { sectionId, previousStatus: sa.status, previousScore: sa.score, kept: true });
     const old = await this.prisma.workspace.findMany({ where: { sectionAttemptId: sa.id } });
     for (const ws of old) {
       await this.workspaces.stop(ws.id).catch(() => undefined);
       await this.workspaces.deleteFiles(ws.id).catch(() => undefined);
     }
-    await this.prisma.submission.deleteMany({ where: { sectionAttemptId: sa.id } });
+    // Submissions graded before timeSpentMs was stored take it from the section, whose timer is about to reset.
+    if (sa.startedAt && sa.submittedAt) {
+      await this.prisma.submission.updateMany({ where: { sectionAttemptId: sa.id, timeSpentMs: null }, data: { timeSpentMs: sa.submittedAt.getTime() - sa.startedAt.getTime() } });
+    }
+    await this.prisma.submission.updateMany({ where: { sectionAttemptId: sa.id, supersededAt: null }, data: { supersededAt: new Date() } });
     await this.prisma.workspace.deleteMany({ where: { sectionAttemptId: sa.id } });
     await this.prisma.sectionAttempt.update({
       where: { id: sa.id },
@@ -160,24 +166,31 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
     this.submitting.add(sa.id);
     try {
       // Freeze edits immediately.
-      await this.prisma.sectionAttempt.update({ where: { id: sa.id }, data: { status: reason === 'expired' ? 'EXPIRED' : 'SUBMITTED', submittedAt: new Date() } });
+      const submittedAt = new Date();
+      await this.prisma.sectionAttempt.update({ where: { id: sa.id }, data: { status: reason === 'expired' ? 'EXPIRED' : 'SUBMITTED', submittedAt } });
+      const timeSpentMs = sa.startedAt ? submittedAt.getTime() - sa.startedAt.getTime() : null;
       const scores: number[] = [];
       for (const ws of sa.workspaces) {
         let score = 0;
         let testRunId: string | undefined;
         let diff = '';
+        let passed: number | null = null;
+        let total: number | null = null;
         // STOPPED = sandbox stopped for idleness; its files are intact and finalGrade() restarts it.
         if (ws.status === 'RUNNING' || ws.status === 'READY' || ws.status === 'STOPPED') {
           try {
             const run = await this.workspaces.finalGrade(ws.id);
             testRunId = run.id;
             score = run.total ? Math.round((run.passed / run.total) * 1000) / 10 : 0;
+            passed = run.passed;
+            total = run.total;
             diff = (await this.workspaces.diff(ws.id)).patch;
           } catch (e) {
             this.log.error(`Final grading failed for ${ws.id}: ${(e as Error).message}`);
           }
         }
-        await this.prisma.submission.create({ data: { sectionAttemptId: sa.id, challengeId: ws.challengeId, testRunId, diff, score } });
+        const testRuns = await this.prisma.testRun.count({ where: { workspaceId: ws.id } });
+        await this.prisma.submission.create({ data: { sectionAttemptId: sa.id, challengeId: ws.challengeId, testRunId, diff, score, passed, total, timeSpentMs, testRuns } });
         await this.workspaces.stop(ws.id).catch(() => undefined);
         scores.push(score);
       }
@@ -226,7 +239,7 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
   async results(sessionId: string) {
     const session = await this.get(sessionId);
     const subs = await this.prisma.submission.findMany({
-      where: { sectionAttempt: { sessionId } },
+      where: { sectionAttempt: { sessionId }, supersededAt: null },
       include: { testRun: true, sectionAttempt: true },
     });
     const events = await this.prisma.sessionEvent.findMany({ where: { sessionId }, orderBy: { createdAt: 'asc' } });
@@ -242,7 +255,7 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
         challengeId: s.challengeId,
         score: s.score,
         diff: s.diff,
-        timeSpentMs: s.sectionAttempt.startedAt && s.sectionAttempt.submittedAt ? s.sectionAttempt.submittedAt.getTime() - s.sectionAttempt.startedAt.getTime() : null,
+        timeSpentMs: s.timeSpentMs ?? (s.sectionAttempt.startedAt && s.sectionAttempt.submittedAt ? s.sectionAttempt.submittedAt.getTime() - s.sectionAttempt.startedAt.getTime() : null),
         testRun: s.testRun && { passed: s.testRun.passed, failed: s.testRun.failed, total: s.testRun.total, tests: JSON.parse(s.testRun.resultsJson), output: s.testRun.output.slice(-20_000) },
       })),
       testRunsByWorkspace: Object.fromEntries(runCounts.map((r) => [r.workspaceId, r._count])),

@@ -126,7 +126,7 @@ pnpm validate                                       # validate every manifest
 
 C++ projects with a `CMakeLists.txt` are detected too: they are built with CMake and scored with CTest. For a program graded on its output, see `content/amazon/debugging/cpp/category-engine-001/` (`oa-challenge.json`, `support/grade.py`, `hidden/`, `solution/reference.py`).
 
-The importer writes manifests into `imports/<repo>/.oa-lab/`. You can also import from the dashboard ("Import repository"); when OA Lab runs in Docker those land in `data/imports/`. To ship them with OA Lab for everyone, copy the folder into `content/imported/` (without its `.git`) and commit it.
+The importer writes manifests into `imports/<repo>/.oa-lab/`. The API also accepts imports (`POST /repositories/import`, for the upcoming admin panel); when OA Lab runs in Docker those land in `data/imports/`. To ship them with OA Lab for everyone, copy the folder into `content/imported/` (without its `.git`) and commit it.
 
 ## Development (without the app container)
 
