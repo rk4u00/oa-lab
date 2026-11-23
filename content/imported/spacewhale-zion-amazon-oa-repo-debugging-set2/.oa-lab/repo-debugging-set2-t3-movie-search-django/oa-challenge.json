@@ -6,6 +6,10 @@
   "difficulty": "hard",
   "durationMinutes": 60,
   "description": "Imported Django practice repository (t3-movie-search/django). Read the task, make the failing tests pass without editing them.",
+  "family": {
+    "id": "repo-debugging-set2-t3-movie-search",
+    "title": "Task 3 \u2014 Movie Search Against Five Search Rules"
+  },
   "taskFile": "../../t3-movie-search/django/README.md",
   "starterDir": "../../t3-movie-search/django",
   "runtime": {

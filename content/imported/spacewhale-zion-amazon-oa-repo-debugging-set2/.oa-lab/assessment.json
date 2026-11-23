@@ -3,7 +3,7 @@
   "company": "amazon",
   "title": "Amazon OA Repository Debugging — Practice Set 2",
   "subtitle": "Imported from https://github.com/spacewhale-zion/amazon-oa-repo-debugging-set2",
-  "description": "All 8 debugging projects detected in this repository, one timed section each.",
+  "description": "Four debugging tasks, each available in Django and Spring Boot: pick your framework, then solve one timed section per task.",
   "aiAssistance": "allowed",
   "disclaimer": "Third-party practice material imported for local use. Not affiliated with any company.",
   "sections": [

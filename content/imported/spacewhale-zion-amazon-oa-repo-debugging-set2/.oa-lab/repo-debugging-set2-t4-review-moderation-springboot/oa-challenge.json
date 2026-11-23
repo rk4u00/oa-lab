@@ -6,6 +6,10 @@
   "difficulty": "hard",
   "durationMinutes": 60,
   "description": "Imported Spring Boot practice repository (t4-review-moderation/springboot). Read the task, make the failing tests pass without editing them.",
+  "family": {
+    "id": "repo-debugging-set2-t4-review-moderation",
+    "title": "Task 4 \u2014 Review Content Moderation"
+  },
   "taskFile": "../../t4-review-moderation/springboot/README.md",
   "starterDir": "../../t4-review-moderation/springboot",
   "runtime": {

@@ -21,6 +21,8 @@ export interface RegisteredAssessment {
 
 export const IMPORTS_DIR = env.importsDir;
 
+const frameworkOf = (m: ChallengeManifest) => m.runtime.framework ?? m.runtime.language;
+
 async function findFiles(root: string, name: string, depth = 7): Promise<string[]> {
   const out: string[] = [];
   const walk = async (dir: string, d: number) => {
@@ -146,6 +148,41 @@ export class ContentService implements OnModuleInit {
     const a = this.assessments.get(id);
     if (!a) throw new NotFoundException(`Assessment ${id} not found`);
     return a;
+  }
+
+  /** Frameworks (`runtime.framework`) a candidate can choose between, from sections that are variants of one problem. */
+  frameworkChoices(id: string) {
+    const out = new Set<string>();
+    for (const list of this.variantGroups(id)) for (const s of list) out.add(frameworkOf(this.sectionManifest(s)!));
+    return [...out];
+  }
+
+  /**
+   * The sections a session gets: framework variants of the same problem (manifest `family`) are reduced to one,
+   * the variant in `framework` when the problem has one, otherwise the first listed.
+   */
+  sectionsFor(id: string, framework?: string) {
+    const { definition } = this.assessment(id);
+    const drop = new Set<string>();
+    for (const list of this.variantGroups(id)) {
+      const chosen = list.find((s) => frameworkOf(this.sectionManifest(s)!) === framework) ?? list[0];
+      for (const s of list) if (s !== chosen) drop.add(s.id);
+    }
+    return definition.sections.filter((s) => !drop.has(s.id));
+  }
+
+  private sectionManifest(s: AssessmentDefinition['sections'][number]) {
+    return s.challenges.length === 1 ? this.challenges.get(s.challenges[0])?.manifest : undefined;
+  }
+
+  /** Groups of two or more single-challenge sections whose challenges share a `family`. */
+  private variantGroups(id: string) {
+    const groups = new Map<string, AssessmentDefinition['sections']>();
+    for (const s of this.assessment(id).definition.sections) {
+      const fam = this.sectionManifest(s)?.family?.id;
+      if (fam) groups.set(fam, [...(groups.get(fam) ?? []), s]);
+    }
+    return [...groups.values()].filter((l) => l.length > 1);
   }
 
   async taskMarkdown(id: string) {

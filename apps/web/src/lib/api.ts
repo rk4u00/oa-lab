@@ -1,4 +1,5 @@
 import type { FileNode, TestCaseResult } from '@oa-lab/shared';
+import { progress } from './progress';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:4000';
@@ -13,12 +14,12 @@ async function req<T>(path: string, init?: RequestInit & { json?: unknown }): Pr
   const { json, ...rest } = init ?? {};
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await progress.track(fetch(`${API_URL}${path}`, {
       ...rest,
       headers: { ...(json !== undefined ? { 'content-type': 'application/json' } : {}), ...(rest.headers ?? {}) },
       body: json !== undefined ? JSON.stringify(json) : rest.body,
       cache: 'no-store',
-    });
+    }));
   } catch {
     throw new ApiError(0, `Cannot reach the OA Lab API at ${API_URL}. Is \`pnpm dev\` running?`);
   }
@@ -49,6 +50,8 @@ export interface AssessmentSummary {
   disclaimer?: string;
   origin: Origin;
   totalMinutes: number;
+  /** `runtime.framework` values to choose from when the assessment lists one problem in several frameworks. */
+  frameworks: string[];
   sections: { id: string; kind: 'debugging'; title: string; durationMinutes: number; challenges: string[] }[];
 }
 
@@ -59,6 +62,8 @@ export interface ChallengeSummary {
   difficulty: 'easy' | 'medium' | 'hard';
   durationMinutes: number;
   description: string;
+  /** Variants of the same problem in other frameworks share `family.id`. */
+  family?: { id: string; title: string };
   runtime: Runtime;
   features: { terminal: boolean; editor: boolean; aiCoach: boolean; gitDiff: boolean };
   origin: 'builtin' | 'imported';
@@ -195,7 +200,7 @@ export const api = {
   challenges: () => req<{ challenges: ChallengeSummary[]; problems: string[] }>('/challenges'),
   challenge: (id: string) => req<ChallengeSummary & { task: string }>(`/challenges/${enc(id)}`),
   importRepo: (source: string, company?: string) => req<ImportResult>('/repositories/import', { method: 'POST', json: { source, company } }),
-  createSession: (assessmentId: string) => req<Session>('/sessions', { method: 'POST', json: { assessmentId } }),
+  createSession: (assessmentId: string, framework?: string) => req<Session>('/sessions', { method: 'POST', json: { assessmentId, framework } }),
   sessions: () => req<SessionListItem[]>('/sessions'),
   session: (id: string) => req<Session>(`/sessions/${enc(id)}`),
   startSection: (id: string, sectionId: string) => req<Session>(`/sessions/${enc(id)}/sections/${enc(sectionId)}/start`, { method: 'POST' }),

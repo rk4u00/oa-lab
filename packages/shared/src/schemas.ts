@@ -9,6 +9,8 @@ export const ChallengeManifest = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard']),
   durationMinutes: z.number().int().positive().default(60),
   description: z.string(),
+  /** The same problem in several frameworks: variants share `family.id`, are listed once, and the framework is picked when starting. */
+  family: z.object({ id: z.string(), title: z.string() }).optional(),
   /** Markdown file (relative to the challenge dir) shown in the task panel. */
   taskFile: z.string().default('TASK.md'),
   /** Optional AI coach system prompt (relative to the challenge dir). */

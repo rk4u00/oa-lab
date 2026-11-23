@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight, Minus, TrendingUp } from 'lucide-react';
 import { api, formatDuration, frameworkLabel, type Analytics, type ChallengeProgress } from '@/lib/api';
-import { DifficultyText, ErrorBox, HealthBadge, MainNav, ScorePill, Spinner, TopNav } from '@/components/ui';
+import { DifficultyText, ErrorBox, ScorePill, SiteHeader, Skeleton, SkeletonRows } from '@/components/ui';
 
 type SortKey = 'recent' | 'improved' | 'weakest' | 'attempts';
 const SORTS: Record<SortKey, { label: string; fn: (a: ChallengeProgress, b: ChallengeProgress) => number }> = {
@@ -28,17 +28,20 @@ export default function ProgressPage() {
   const o = data?.overview;
 
   return (
-    <div className="min-h-screen">
-      <TopNav>
-        <MainNav />
-        <div className="flex-1" />
-        <HealthBadge />
-      </TopNav>
+    <div className="min-h-screen pb-16 md:pb-0">
+      <SiteHeader />
 
       <section className="border-b border-line bg-panel">
         <div className="mx-auto max-w-7xl px-5 py-8">
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight"><TrendingUp className="h-6 w-6 text-accent" /> Progress</h1>
           <p className="mt-2 max-w-2xl text-muted">Every graded attempt, including the ones you retried, with how your scores changed from the first try to now.</p>
+          {!data && !error && (
+            <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3 lg:grid-cols-6" role="status" aria-label="Loading">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="space-y-2"><Skeleton className="h-3 w-24" /><Skeleton className="h-7 w-16" /></div>
+              ))}
+            </div>
+          )}
           {o && o.attempts > 0 && (
             <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
               <Tile label="Questions attempted" value={o.questions} />
@@ -54,7 +57,15 @@ export default function ProgressPage() {
 
       <main className="mx-auto max-w-7xl space-y-10 px-5 py-8">
         <ErrorBox error={error} />
-        {!data && !error && <Spinner />}
+        {!data && !error && (
+          <>
+            <div className="card space-y-4 p-5">
+              <Skeleton className="h-3 w-64" />
+              <Skeleton className="h-52 w-full" />
+            </div>
+            <SkeletonRows rows={4} />
+          </>
+        )}
         {data && data.overview.attempts === 0 && (
           <div className="card p-6 text-sm text-muted">
             No graded attempts yet. Submit a challenge from the <Link href="/" className="text-accent underline">dashboard</Link> and your progress shows up here.

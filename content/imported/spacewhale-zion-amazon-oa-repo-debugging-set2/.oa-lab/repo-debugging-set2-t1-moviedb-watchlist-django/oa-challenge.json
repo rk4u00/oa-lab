@@ -6,6 +6,10 @@
   "difficulty": "medium",
   "durationMinutes": 60,
   "description": "Imported Django practice repository (t1-moviedb-watchlist/django). Read the task, make the failing tests pass without editing them.",
+  "family": {
+    "id": "repo-debugging-set2-t1-moviedb-watchlist",
+    "title": "Task 1 \u2014 MovieDB Watchlist + Rate Limiting"
+  },
   "taskFile": "../../t1-moviedb-watchlist/django/README.md",
   "starterDir": "../../t1-moviedb-watchlist/django",
   "runtime": {

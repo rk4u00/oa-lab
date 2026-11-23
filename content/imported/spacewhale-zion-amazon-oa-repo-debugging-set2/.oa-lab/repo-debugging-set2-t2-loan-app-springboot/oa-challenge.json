@@ -6,6 +6,10 @@
   "difficulty": "medium",
   "durationMinutes": 60,
   "description": "Imported Spring Boot practice repository (t2-loan-app/springboot). Read the task, make the failing tests pass without editing them.",
+  "family": {
+    "id": "repo-debugging-set2-t2-loan-app",
+    "title": "Task 2 \u2014 Loan Application"
+  },
   "taskFile": "../../t2-loan-app/springboot/README.md",
   "starterDir": "../../t2-loan-app/springboot",
   "runtime": {

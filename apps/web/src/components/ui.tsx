@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Loader2, XCircle } from 'lucide-react';
-import { api, type Health } from '@/lib/api';
+import { AlertTriangle, CheckCircle2, ChevronRight, CircleDashed, ClipboardList, Clock, Code2, History, Loader2, TrendingUp, XCircle } from 'lucide-react';
+import { api, type Health, type SessionListItem } from '@/lib/api';
 
 export function Logo({ href = '/', light = true }: { href?: string; light?: boolean }) {
   return (
@@ -26,44 +26,103 @@ export function LogoMark({ className = 'h-7 w-7' }: { className?: string }) {
   );
 }
 
-/** Dark navy top navigation bar used across the app. */
-export function TopNav({ children, href = '/' }: { children?: React.ReactNode; href?: string }) {
+const NAV = [
+  { href: '/', label: 'Practice', icon: Code2 },
+  { href: '/assessments', label: 'Assessments', icon: ClipboardList },
+  { href: '/submissions', label: 'Submissions', icon: History },
+  { href: '/progress', label: 'Progress', icon: TrendingUp },
+];
+
+/**
+ * Header for the Practice, Assessments, Submissions and Progress pages: logo, menu, a Resume button while an
+ * attempt is open, and sandbox status. On phones the menu becomes a bottom tab bar (pages add `pb-16 md:pb-0`).
+ */
+export function SiteHeader() {
+  const path = usePathname();
+  const [open, setOpen] = useState<SessionListItem | null>(null);
+  useEffect(() => {
+    api.sessions().then((list) => setOpen(list.find((s) => s.status === 'IN_PROGRESS' || s.status === 'READY') ?? null), () => undefined);
+  }, []);
+
   return (
-    <header className="topnav sticky top-0 z-30">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-5">
-        <Logo href={href} />
-        {children}
-      </div>
-    </header>
+    <>
+      <header className="topnav sticky top-0 z-30 border-b border-navline shadow-[0_1px_0_rgba(0,0,0,0.25)]">
+        <div className="mx-auto flex h-[60px] max-w-7xl items-center gap-4 px-4 sm:px-5">
+          <Logo />
+          <span className="hidden h-6 w-px bg-white/15 md:block" />
+          <nav className="hidden h-full items-stretch gap-1 md:flex" aria-label="Main">
+            {NAV.map(({ href, label, icon: Icon }) => {
+              const active = href === path;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`group relative flex items-center gap-2 px-3 text-[13.5px] font-semibold transition-colors ${active ? 'text-white' : 'text-white/60 hover:text-white'}`}
+                >
+                  <span className={`flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ${active ? '' : 'group-hover:bg-white/[0.07]'}`}>
+                    <Icon className={`h-4 w-4 ${active ? 'text-accent' : 'text-white/45 group-hover:text-white/80'}`} />
+                    {label}
+                  </span>
+                  <span className={`absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-accent transition-opacity ${active ? 'opacity-100' : 'opacity-0'}`} />
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="flex-1" />
+          {open && (
+            <Link
+              href={`/assessment/${open.id}`}
+              title={open.title}
+              className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-accent/50 bg-accent/15 pl-2.5 pr-3 text-xs font-semibold text-white transition hover:bg-accent/25"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              Resume<span className="hidden max-w-[180px] truncate font-normal text-white/70 lg:inline">· {open.title}</span>
+              <ChevronRight className="-mr-1 h-3.5 w-3.5 text-white/60" />
+            </Link>
+          )}
+          <HealthBadge />
+        </div>
+      </header>
+
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-navline bg-nav pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Main">
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const active = href === path;
+          return (
+            <Link key={href} href={href} aria-current={active ? 'page' : undefined} className={`relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? 'text-white' : 'text-white/55'}`}>
+              <span className={`absolute inset-x-6 top-0 h-[3px] rounded-b-full bg-accent ${active ? '' : 'hidden'}`} />
+              <Icon className={`h-5 w-5 ${active ? 'text-accent' : ''}`} />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
 }
 
-const NAV = [
-  { href: '/', label: 'Practice' },
-  { href: '/assessments', label: 'Assessments' },
-  { href: '/submissions', label: 'Submissions' },
-  { href: '/progress', label: 'Progress' },
-];
+/** Shimmering placeholder block; size it with width/height classes. */
+export function Skeleton({ className = 'h-4 w-full' }: { className?: string }) {
+  return <div aria-hidden className={`skeleton ${className}`} />;
+}
 
-/** Main navigation shared by the Practice, Assessments, Submissions and Progress pages. */
-export function MainNav() {
-  const path = usePathname();
+/** Placeholder rows for a list or table while it loads. */
+export function SkeletonRows({ rows = 5, className = '' }: { rows?: number; className?: string }) {
   return (
-    <nav className="-mx-1 flex min-w-0 items-center gap-0.5 overflow-x-auto text-sm font-medium text-white/70">
-      {NAV.map((n) => {
-        const active = n.href === path;
-        return (
-          <Link
-            key={n.href}
-            href={n.href}
-            aria-current={active ? 'page' : undefined}
-            className={`shrink-0 rounded px-2.5 py-1.5 hover:bg-white/10 hover:text-white sm:px-3 ${active ? 'bg-white/10 text-white' : ''}`}
-          >
-            {n.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <div className={`card divide-y divide-line ${className}`} role="status" aria-label="Loading">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="flex items-center gap-4 px-5 py-4">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-3.5 w-2/5" />
+            <Skeleton className="h-3 w-1/4" />
+          </div>
+          <Skeleton className="h-7 w-24" />
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -91,7 +150,7 @@ export function HealthBadge() {
   useEffect(() => {
     api.health().then(setH, () => setErr(true));
   }, []);
-  const pill = 'hidden shrink-0 items-center gap-1.5 rounded-full sm:inline-flex border border-white/15 px-2.5 py-0.5 text-[11px] font-medium';
+  const pill = 'hidden h-8 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-3 text-[11px] font-medium ring-1 ring-inset ring-white/10 md:inline-flex';
   if (err) return <span className={`${pill} text-red-300`}>● API offline</span>;
   if (!h) return <span className={`${pill} text-white/60`}><Spinner className="h-3 w-3" /> connecting</span>;
   if (h.driver === 'local') return <span className={`${pill} text-amber-300`} title="Code runs on the host without isolation">● Local driver (unsafe)</span>;

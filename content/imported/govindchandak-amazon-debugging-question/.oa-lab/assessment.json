@@ -3,7 +3,7 @@
   "company": "amazon",
   "title": "Amazon Debugging Round: Practice Repo",
   "subtitle": "Imported from https://github.com/govindchandak/Amazon-debugging-question",
-  "description": "All 10 debugging projects detected in this repository, one timed section each.",
+  "description": "Eight debugging projects across Django, Spring Boot and Node.js, one timed section each. The framework you pick applies to the HelpDesk worked example.",
   "aiAssistance": "allowed",
   "disclaimer": "Third-party practice material imported for local use. Not affiliated with any company.",
   "sections": [

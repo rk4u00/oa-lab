@@ -39,6 +39,8 @@ body { @apply bg-bg text-fg font-sans antialiased; font-size: 14px; }
   .input { @apply h-9 w-full rounded border border-line bg-panel px-3 text-sm text-fg placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15; }
   .label { @apply text-[11px] font-semibold uppercase tracking-wider text-muted; }
   .topnav { @apply bg-nav text-white; }
+  .skeleton { @apply relative overflow-hidden rounded bg-line/60; }
+  .skeleton::after { content: ''; @apply absolute inset-0 -translate-x-full; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent); animation: shimmer 1.3s infinite; }
   .diff-easy { @apply text-ok; }
   .diff-medium { @apply text-warn; }
   .diff-hard { @apply text-bad; }
@@ -73,3 +75,6 @@ body { @apply bg-bg text-fg font-sans antialiased; font-size: 14px; }
 
 /* Thin scrollbars */
 * { scrollbar-width: thin; scrollbar-color: rgb(var(--line)) transparent; }
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .skeleton::after { animation: none; } }

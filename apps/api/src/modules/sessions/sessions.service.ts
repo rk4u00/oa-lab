@@ -32,16 +32,16 @@ export class SessionsService implements OnModuleInit, OnModuleDestroy {
     await this.prisma.sessionEvent.create({ data: { sessionId, type, payload: payload === undefined ? null : JSON.stringify(payload) } });
   }
 
-  async create(assessmentId: string) {
-    const { definition } = this.content.assessment(assessmentId);
+  async create(assessmentId: string, framework?: string) {
+    const sections = this.content.sectionsFor(assessmentId, framework);
     const session = await this.prisma.session.create({
       data: {
         assessmentId,
         status: 'READY',
-        sections: { create: definition.sections.map((s, i) => ({ sectionId: s.id, kind: s.kind, order: i })) },
+        sections: { create: sections.map((s, i) => ({ sectionId: s.id, kind: s.kind, order: i })) },
       },
     });
-    await this.event(session.id, 'created');
+    await this.event(session.id, 'created', framework ? { framework } : undefined);
     return this.get(session.id);
   }
 

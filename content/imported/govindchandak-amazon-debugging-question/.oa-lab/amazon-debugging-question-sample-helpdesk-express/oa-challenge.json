@@ -6,6 +6,10 @@
   "difficulty": "medium",
   "durationMinutes": 60,
   "description": "Imported Node.js practice repository (sample-helpdesk/express). Read the task, make the failing tests pass without editing them.",
+  "family": {
+    "id": "amazon-debugging-question-sample-helpdesk",
+    "title": "Worked example \u00b7 HelpDesk"
+  },
   "taskFile": "../../sample-helpdesk/README.md",
   "coachPromptFile": "../../AI_COACH_PROMPT.md",
   "starterDir": "../../sample-helpdesk/express",

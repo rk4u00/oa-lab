@@ -13,7 +13,8 @@ export class ContentController {
     return this.content.listAssessments().map(({ definition, origin }) => ({
       ...definition,
       origin,
-      totalMinutes: definition.sections.reduce((n, s) => n + s.durationMinutes, 0),
+      frameworks: this.content.frameworkChoices(definition.id),
+      totalMinutes: this.content.sectionsFor(definition.id).reduce((n, s) => n + s.durationMinutes, 0),
     }));
   }
 
@@ -66,6 +67,7 @@ export class ContentController {
       difficulty: m.difficulty,
       durationMinutes: m.durationMinutes,
       description: m.description,
+      family: m.family,
       runtime: m.runtime,
       features: m.features,
       origin: c.origin,

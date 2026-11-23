@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '@xterm/xterm/css/xterm.css';
 import './globals.css';
+import { NavProgress } from '@/components/NavProgress';
 
 export const metadata: Metadata = {
   title: 'OA Lab',
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body>{children}</body>
+      <body>
+        <NavProgress />
+        {children}
+      </body>
     </html>
   );
 }

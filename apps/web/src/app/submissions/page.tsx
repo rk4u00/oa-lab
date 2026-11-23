@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { History, TrendingUp } from 'lucide-react';
 import { api, type SessionListItem } from '@/lib/api';
-import { ErrorBox, HealthBadge, MainNav, ScorePill, Spinner, StatusBadge, TopNav } from '@/components/ui';
+import { ErrorBox, ScorePill, SiteHeader, SkeletonRows, StatusBadge } from '@/components/ui';
 
 const FILTERS: Record<string, { label: string; match: (s: SessionListItem) => boolean }> = {
   all: { label: 'All', match: () => true },
@@ -28,12 +28,8 @@ export default function SubmissionsPage() {
   const rows = (history ?? []).filter(FILTERS[filter].match);
 
   return (
-    <div className="min-h-screen">
-      <TopNav>
-        <MainNav />
-        <div className="flex-1" />
-        <HealthBadge />
-      </TopNav>
+    <div className="min-h-screen pb-16 md:pb-0">
+      <SiteHeader />
 
       <section className="border-b border-line bg-panel">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-5 py-8">
@@ -59,7 +55,7 @@ export default function SubmissionsPage() {
         </div>
 
         {history === null ? (
-          <Spinner />
+          <SkeletonRows rows={6} />
         ) : rows.length === 0 ? (
           <p className="card p-6 text-sm text-muted">
             {history.length === 0 ? (

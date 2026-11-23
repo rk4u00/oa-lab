@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs
 import { z } from 'zod';
 import { SessionsService } from './sessions.service';
 
-const CreateBody = z.object({ assessmentId: z.string().min(1) });
+const CreateBody = z.object({ assessmentId: z.string().min(1), framework: z.string().optional() });
 
 @Controller('sessions')
 export class SessionsController {
@@ -12,7 +12,7 @@ export class SessionsController {
   create(@Body() body: unknown) {
     const b = CreateBody.safeParse(body);
     if (!b.success) throw new BadRequestException(b.error.flatten());
-    return this.sessions.create(b.data.assessmentId);
+    return this.sessions.create(b.data.assessmentId, b.data.framework);
   }
 
   @Get() list() { return this.sessions.list(); }
