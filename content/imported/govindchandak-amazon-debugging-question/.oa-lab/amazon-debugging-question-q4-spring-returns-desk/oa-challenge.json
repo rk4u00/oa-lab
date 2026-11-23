@@ -1,0 +1,53 @@
+{
+  "id": "amazon-debugging-question-q4-spring-returns-desk",
+  "title": "Q4 \u00b7 Returns Desk \u00b7 Spring Boot \u00b7 Medium",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 45,
+  "description": "Imported Spring Boot practice repository (q4-spring-returns-desk). Read the task, make the failing tests pass without editing them.",
+  "taskFile": "../../q4-spring-returns-desk/README.md",
+  "coachPromptFile": "../../AI_COACH_PROMPT.md",
+  "starterDir": "../../q4-spring-returns-desk",
+  "runtime": {
+    "language": "java",
+    "framework": "spring-boot",
+    "image": "oa-lab-java:latest"
+  },
+  "workspace": {
+    "root": "/workspace"
+  },
+  "execution": {
+    "setup": "oa-maven-settings > /tmp/oa-settings.xml && mvn -B -q -Dmaven.repo.local=/workspace/.oa/m2 -Dstyle.color=never -s /tmp/oa-settings.xml -Dmaven.test.failure.ignore=true test",
+    "test": "rm -rf target/surefire-reports && mvn -B -q -Dmaven.repo.local=/workspace/.oa/m2 -Dstyle.color=never -o -Dmaven.test.failure.ignore=true test",
+    "targetTemplate": "{test} -Dtest={target} -Dsurefire.failIfNoSpecifiedTests=false",
+    "resultFormat": "junit",
+    "resultPath": "target/surefire-reports",
+    "timeoutSeconds": 300,
+    "env": {}
+  },
+  "resources": {
+    "memoryMb": 2048,
+    "cpus": 2,
+    "pids": 512,
+    "network": false
+  },
+  "scoring": {
+    "type": "test-pass-rate",
+    "maxScore": 100
+  },
+  "features": {
+    "terminal": true,
+    "editor": true,
+    "aiCoach": true,
+    "gitDiff": true
+  },
+  "readOnly": [
+    "src/test/"
+  ],
+  "provenance": {
+    "source": "third-party",
+    "url": "https://github.com/govindchandak/Amazon-debugging-question",
+    "license": "No license file in upstream repository \u2014 included with attribution for practice use"
+  }
+}

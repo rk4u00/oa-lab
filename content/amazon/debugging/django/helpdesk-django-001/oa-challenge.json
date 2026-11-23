@@ -1,0 +1,23 @@
+{
+  "id": "helpdesk-django-001",
+  "title": "HelpDesk Ticket Management",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 60,
+  "description": "A Django JSON API for support tickets. Ticket creation and the reply flow are broken — find and fix the bugs so the test suite passes.",
+  "runtime": { "language": "python", "framework": "django", "version": "3.12", "image": "oa-lab-python:latest" },
+  "workspace": { "root": "/workspace", "entrypoint": "manage.py" },
+  "execution": {
+    "test": "python -m pytest -q -p no:cacheprovider --junitxml=.oa/results.xml",
+    "resultFormat": "junit",
+    "resultPath": ".oa/results.xml",
+    "timeoutSeconds": 120,
+    "env": { "PYTHONDONTWRITEBYTECODE": "1" }
+  },
+  "resources": { "memoryMb": 1024, "cpus": 1, "pids": 256, "network": false },
+  "scoring": { "type": "test-pass-rate", "maxScore": 100 },
+  "features": { "terminal": true, "editor": true, "aiCoach": true, "gitDiff": true },
+  "readOnly": ["tests/"],
+  "provenance": { "source": "original", "author": "OA Lab", "license": "MIT" }
+}

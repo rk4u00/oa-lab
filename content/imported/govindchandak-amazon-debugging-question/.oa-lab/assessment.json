@@ -1,0 +1,101 @@
+{
+  "id": "govindchandak-amazon-debugging-question-set",
+  "company": "amazon",
+  "title": "Amazon Debugging Round: Practice Repo",
+  "subtitle": "Imported from https://github.com/govindchandak/Amazon-debugging-question",
+  "description": "All 10 debugging projects detected in this repository, one timed section each.",
+  "aiAssistance": "allowed",
+  "disclaimer": "Third-party practice material imported for local use. Not affiliated with any company.",
+  "sections": [
+    {
+      "id": "s1-amazon-debugging-question-django-placemate-bootcamp",
+      "kind": "debugging",
+      "title": "PlaceMate (Django) – Debugging Bootcamp",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-django-placemate-bootcamp"
+      ]
+    },
+    {
+      "id": "s2-amazon-debugging-question-q1-django-wishlist",
+      "kind": "debugging",
+      "title": "Q1 · Wishlist · Django · Easy",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q1-django-wishlist"
+      ]
+    },
+    {
+      "id": "s3-amazon-debugging-question-q2-django-parcel-locker",
+      "kind": "debugging",
+      "title": "Q2 · Parcel Locker · Django · Medium",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q2-django-parcel-locker"
+      ]
+    },
+    {
+      "id": "s4-amazon-debugging-question-q3-spring-task-board",
+      "kind": "debugging",
+      "title": "Q3 · Task Board · Spring Boot · Easy",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q3-spring-task-board"
+      ]
+    },
+    {
+      "id": "s5-amazon-debugging-question-q4-spring-returns-desk",
+      "kind": "debugging",
+      "title": "Q4 · Returns Desk · Spring Boot · Medium",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q4-spring-returns-desk"
+      ]
+    },
+    {
+      "id": "s6-amazon-debugging-question-q5-node-gift-wallet",
+      "kind": "debugging",
+      "title": "Q5 · Gift Card Wallet · Node.js (Express) · Easy",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q5-node-gift-wallet"
+      ]
+    },
+    {
+      "id": "s7-amazon-debugging-question-q6-node-gym-booking",
+      "kind": "debugging",
+      "title": "Q6 · Gym Class Booking · Node.js (Express) · Medium",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-q6-node-gym-booking"
+      ]
+    },
+    {
+      "id": "s8-amazon-debugging-question-sample-helpdesk-django",
+      "kind": "debugging",
+      "title": "Worked example · HelpDesk (Django, Spring Boot and Node.js)",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-sample-helpdesk-django"
+      ]
+    },
+    {
+      "id": "s9-amazon-debugging-question-sample-helpdesk-express",
+      "kind": "debugging",
+      "title": "Worked example · HelpDesk (Django, Spring Boot and Node.js)",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-sample-helpdesk-express"
+      ]
+    },
+    {
+      "id": "s10-amazon-debugging-question-sample-helpdesk-springboot",
+      "kind": "debugging",
+      "title": "Worked example · HelpDesk (Django, Spring Boot and Node.js)",
+      "durationMinutes": 60,
+      "challenges": [
+        "amazon-debugging-question-sample-helpdesk-springboot"
+      ]
+    }
+  ]
+}

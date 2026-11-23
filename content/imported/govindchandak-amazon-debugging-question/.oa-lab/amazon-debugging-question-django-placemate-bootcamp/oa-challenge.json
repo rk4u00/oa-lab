@@ -1,0 +1,56 @@
+{
+  "id": "amazon-debugging-question-django-placemate-bootcamp",
+  "title": "PlaceMate (Django) \u2013 Debugging Bootcamp",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 20,
+  "description": "Imported Django practice repository (django-placemate-bootcamp). Read the task, make the failing tests pass without editing them.",
+  "taskFile": "../../django-placemate-bootcamp/README.md",
+  "coachPromptFile": "../../AI_COACH_PROMPT.md",
+  "starterDir": "../../django-placemate-bootcamp",
+  "runtime": {
+    "language": "python",
+    "framework": "django",
+    "image": "oa-lab-python:latest"
+  },
+  "workspace": {
+    "root": "/workspace"
+  },
+  "execution": {
+    "setup": "pip install -q --disable-pip-version-check --target .oa/pydeps -r requirements.txt",
+    "test": "mkdir -p .oa && python -m pytest -q -p no:cacheprovider --ds=placemate.settings -o \"python_files=tests.py test_*.py *_tests.py\" --junitxml=.oa/results.xml",
+    "targetTemplate": "{test} {target}",
+    "resultFormat": "junit",
+    "resultPath": ".oa/results.xml",
+    "timeoutSeconds": 180,
+    "env": {
+      "PYTHONPATH": "/workspace/.oa/pydeps",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    }
+  },
+  "resources": {
+    "memoryMb": 1024,
+    "cpus": 1,
+    "pids": 512,
+    "network": false
+  },
+  "scoring": {
+    "type": "test-pass-rate",
+    "maxScore": 100
+  },
+  "features": {
+    "terminal": true,
+    "editor": true,
+    "aiCoach": true,
+    "gitDiff": true
+  },
+  "readOnly": [
+    "tests/"
+  ],
+  "provenance": {
+    "source": "third-party",
+    "url": "https://github.com/govindchandak/Amazon-debugging-question",
+    "license": "No license file in upstream repository \u2014 included with attribution for practice use"
+  }
+}

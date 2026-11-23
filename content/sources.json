@@ -1,0 +1,7 @@
+{
+  "$comment": "Practice repositories auto-imported on first start (cloned locally into imports/, never redistributed).",
+  "sources": [
+    { "url": "https://github.com/govindchandak/Amazon-debugging-question", "company": "amazon" },
+    { "url": "https://github.com/spacewhale-zion/amazon-oa-repo-debugging-set2", "company": "amazon" }
+  ]
+}

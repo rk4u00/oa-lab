@@ -1,0 +1,52 @@
+{
+  "id": "repo-debugging-set2-t3-movie-search-springboot",
+  "title": "Task 3 \u2014 Movie Search Against Five Search Rules (Spring Boot)",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 60,
+  "description": "Imported Spring Boot practice repository (t3-movie-search/springboot). Read the task, make the failing tests pass without editing them.",
+  "taskFile": "../../t3-movie-search/springboot/README.md",
+  "starterDir": "../../t3-movie-search/springboot",
+  "runtime": {
+    "language": "java",
+    "framework": "spring-boot",
+    "image": "oa-lab-java:latest"
+  },
+  "workspace": {
+    "root": "/workspace"
+  },
+  "execution": {
+    "setup": "oa-maven-settings > /tmp/oa-settings.xml && mvn -B -q -Dmaven.repo.local=/workspace/.oa/m2 -Dstyle.color=never -s /tmp/oa-settings.xml -Dmaven.test.failure.ignore=true test",
+    "test": "rm -rf target/surefire-reports && mvn -B -q -Dmaven.repo.local=/workspace/.oa/m2 -Dstyle.color=never -o -Dmaven.test.failure.ignore=true test",
+    "targetTemplate": "{test} -Dtest={target} -Dsurefire.failIfNoSpecifiedTests=false",
+    "resultFormat": "junit",
+    "resultPath": "target/surefire-reports",
+    "timeoutSeconds": 300,
+    "env": {}
+  },
+  "resources": {
+    "memoryMb": 2048,
+    "cpus": 2,
+    "pids": 512,
+    "network": false
+  },
+  "scoring": {
+    "type": "test-pass-rate",
+    "maxScore": 100
+  },
+  "features": {
+    "terminal": true,
+    "editor": true,
+    "aiCoach": true,
+    "gitDiff": true
+  },
+  "readOnly": [
+    "src/test/"
+  ],
+  "provenance": {
+    "source": "third-party",
+    "url": "https://github.com/spacewhale-zion/amazon-oa-repo-debugging-set2",
+    "license": "No license file in upstream repository \u2014 included with attribution for practice use"
+  }
+}

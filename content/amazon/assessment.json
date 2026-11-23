@@ -1,0 +1,13 @@
+{
+  "id": "amazon-sde-intern",
+  "company": "amazon",
+  "title": "Software Development Engineer — Practice OA",
+  "subtitle": "Amazon SDE Intern · AI-assisted repository debugging",
+  "description": "Two timed repository-debugging tasks modelled on publicly reported candidate experiences: an unfamiliar codebase, a task brief, a failing test suite and an AI assistant at your side.",
+  "aiAssistance": "allowed",
+  "disclaimer": "OA Lab is an independent practice tool. Content is original practice material and is not Amazon's proprietary assessment.",
+  "sections": [
+    { "id": "debugging-django", "kind": "debugging", "title": "Repository Debugging — Django", "durationMinutes": 60, "challenges": ["helpdesk-django-001"] },
+    { "id": "debugging-node", "kind": "debugging", "title": "Repository Debugging — Node.js", "durationMinutes": 60, "challenges": ["orders-node-001"] }
+  ]
+}

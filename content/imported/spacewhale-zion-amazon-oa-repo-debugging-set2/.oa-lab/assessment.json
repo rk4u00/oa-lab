@@ -1,0 +1,83 @@
+{
+  "id": "spacewhale-zion-amazon-oa-repo-debugging-set2-set",
+  "company": "amazon",
+  "title": "Amazon OA Repository Debugging — Practice Set 2",
+  "subtitle": "Imported from https://github.com/spacewhale-zion/amazon-oa-repo-debugging-set2",
+  "description": "All 8 debugging projects detected in this repository, one timed section each.",
+  "aiAssistance": "allowed",
+  "disclaimer": "Third-party practice material imported for local use. Not affiliated with any company.",
+  "sections": [
+    {
+      "id": "s1-repo-debugging-set2-t1-moviedb-watchlist-django",
+      "kind": "debugging",
+      "title": "Task 1 — MovieDB Watchlist + Rate Limiting (Django)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t1-moviedb-watchlist-django"
+      ]
+    },
+    {
+      "id": "s2-repo-debugging-set2-t1-moviedb-watchlist-springboot",
+      "kind": "debugging",
+      "title": "Task 1 — MovieDB Watchlist + Rate Limiting (Spring Boot)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t1-moviedb-watchlist-springboot"
+      ]
+    },
+    {
+      "id": "s3-repo-debugging-set2-t2-loan-app-django",
+      "kind": "debugging",
+      "title": "Task 2 — Loan Application (Django)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t2-loan-app-django"
+      ]
+    },
+    {
+      "id": "s4-repo-debugging-set2-t2-loan-app-springboot",
+      "kind": "debugging",
+      "title": "Task 2 — Loan Application (Spring Boot)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t2-loan-app-springboot"
+      ]
+    },
+    {
+      "id": "s5-repo-debugging-set2-t3-movie-search-django",
+      "kind": "debugging",
+      "title": "Task 3 — Movie Search Against Five Search Rules (Django)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t3-movie-search-django"
+      ]
+    },
+    {
+      "id": "s6-repo-debugging-set2-t3-movie-search-springboot",
+      "kind": "debugging",
+      "title": "Task 3 — Movie Search Against Five Search Rules (Spring Boot)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t3-movie-search-springboot"
+      ]
+    },
+    {
+      "id": "s7-repo-debugging-set2-t4-review-moderation-django",
+      "kind": "debugging",
+      "title": "Task 4 — Review Content Moderation (Django)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t4-review-moderation-django"
+      ]
+    },
+    {
+      "id": "s8-repo-debugging-set2-t4-review-moderation-springboot",
+      "kind": "debugging",
+      "title": "Task 4 — Review Content Moderation (Spring Boot)",
+      "durationMinutes": 60,
+      "challenges": [
+        "repo-debugging-set2-t4-review-moderation-springboot"
+      ]
+    }
+  ]
+}

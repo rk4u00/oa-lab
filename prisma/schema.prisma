@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./oa-lab.db"
+}
+
+/// One attempt at an assessment (full profile or a single-challenge practice run).
+model Session {
+  id           String           @id @default(cuid())
+  assessmentId String
+  status       String           @default("CREATED") // CREATED | READY | IN_PROGRESS | SUBMITTED | EXPIRED | ABANDONED
+  createdAt    DateTime         @default(now())
+  startedAt    DateTime?
+  deadline     DateTime?
+  submittedAt  DateTime?
+  score        Float?
+  sections     SectionAttempt[]
+  events       SessionEvent[]
+}
+
+model SectionAttempt {
+  id          String       @id @default(cuid())
+  sessionId   String
+  session     Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sectionId   String
+  kind        String
+  order       Int
+  status      String       @default("PENDING") // PENDING | IN_PROGRESS | SUBMITTED | EXPIRED
+  startedAt   DateTime?
+  deadline    DateTime?
+  submittedAt DateTime?
+  score       Float?
+  workspaces  Workspace[]
+  submissions Submission[]
+
+  @@unique([sessionId, sectionId])
+}
+
+model Workspace {
+  id               String         @id @default(cuid())
+  sectionAttemptId String
+  sectionAttempt   SectionAttempt @relation(fields: [sectionAttemptId], references: [id], onDelete: Cascade)
+  challengeId      String
+  hostPath         String
+  containerHandle  String?
+  status           String         @default("PREPARING") // PREPARING | READY | RUNNING | STOPPED | FAILED
+  error            String?
+  createdAt        DateTime       @default(now())
+  testRuns         TestRun[]
+}
+
+/// Every "Run tests" click is recorded; submissions reference the final run.
+model TestRun {
+  id          String     @id @default(cuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  passed      Int
+  failed      Int
+  total       Int
+  durationMs  Int
+  exitCode    Int?
+  timedOut    Boolean    @default(false)
+  resultsJson String
+  output      String
+  createdAt   DateTime   @default(now())
+  submission  Submission?
+}
+
+model Submission {
+  id               String         @id @default(cuid())
+  sectionAttemptId String
+  sectionAttempt   SectionAttempt @relation(fields: [sectionAttemptId], references: [id], onDelete: Cascade)
+  challengeId      String
+  testRunId        String?        @unique
+  testRun          TestRun?       @relation(fields: [testRunId], references: [id])
+  diff             String
+  score            Float
+  createdAt        DateTime       @default(now())
+}
+
+model SessionEvent {
+  id        String   @id @default(cuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type      String
+  payload   String?
+  createdAt DateTime @default(now())
+}

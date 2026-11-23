@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 12 12 14;
+  --panel: 20 20 23;
+  --raised: 30 30 34;
+  --line: 44 44 50;
+  --fg: 228 228 231;
+  --muted: 140 140 150;
+  --accent: 245 158 11;
+  --ok: 74 222 128;
+  --bad: 248 113 113;
+  --warn: 250 204 21;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body { @apply bg-bg text-fg font-sans antialiased; }
+
+@layer components {
+  .btn { @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-raised px-3 py-1.5 text-sm font-medium text-fg transition hover:border-muted/60 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply border-accent bg-accent text-black hover:brightness-110; }
+  .btn-danger { @apply border-bad/50 bg-bad/10 text-bad hover:bg-bad/20; }
+  .btn-ghost { @apply border-transparent bg-transparent hover:bg-raised; }
+  .btn-sm { @apply px-2 py-1 text-xs; }
+  .card { @apply rounded-lg border border-line bg-panel; }
+  .badge { @apply inline-flex items-center gap-1 rounded border border-line bg-raised px-1.5 py-0.5 text-[11px] font-medium text-muted; }
+  .input { @apply w-full rounded-md border border-line bg-bg px-3 py-1.5 text-sm text-fg placeholder:text-muted/60 focus:border-accent focus:outline-none; }
+  .label { @apply text-[11px] font-semibold uppercase tracking-wider text-muted; }
+}
+
+/* Markdown task panel */
+.prose-oa { @apply text-sm leading-relaxed text-fg/90; }
+.prose-oa h1 { @apply mb-3 text-lg font-semibold text-fg; }
+.prose-oa h2 { @apply mb-2 mt-5 text-base font-semibold text-fg; }
+.prose-oa h3 { @apply mb-2 mt-4 text-sm font-semibold text-fg; }
+.prose-oa p { @apply my-2; }
+.prose-oa ul { @apply my-2 list-disc pl-5; }
+.prose-oa ol { @apply my-2 list-decimal pl-5; }
+.prose-oa li { @apply my-1; }
+.prose-oa code { @apply rounded bg-raised px-1 py-0.5 font-mono text-[12px] text-accent; }
+.prose-oa pre { @apply my-3 overflow-x-auto rounded-md border border-line bg-bg p-3; }
+.prose-oa pre code { @apply bg-transparent p-0 text-fg/90; }
+.prose-oa a { @apply text-accent underline; }
+.prose-oa table { @apply my-3 w-full border-collapse text-xs; }
+.prose-oa th, .prose-oa td { @apply border border-line px-2 py-1 text-left align-top; }
+.prose-oa th { @apply bg-raised; }
+.prose-oa blockquote { @apply border-l-2 border-accent pl-3 text-muted; }
+.prose-oa strong { @apply text-fg; }
+
+/* Resize handles */
+[data-panel-resize-handle-id] { @apply bg-line transition-colors; }
+[data-panel-resize-handle-id][data-resize-handle-state="hover"],
+[data-panel-resize-handle-id][data-resize-handle-state="drag"] { @apply bg-accent; }
+
+.xterm { height: 100%; padding: 6px; }

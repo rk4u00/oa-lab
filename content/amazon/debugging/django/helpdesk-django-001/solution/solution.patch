@@ -1,0 +1,84 @@
+Binary files a/helpdesk/__pycache__/__init__.cpython-313.pyc and b/helpdesk/__pycache__/__init__.cpython-313.pyc differ
+Binary files a/helpdesk/__pycache__/settings.cpython-313.pyc and b/helpdesk/__pycache__/settings.cpython-313.pyc differ
+Binary files a/helpdesk/__pycache__/urls.cpython-313.pyc and b/helpdesk/__pycache__/urls.cpython-313.pyc differ
+Binary files a/tests/__pycache__/__init__.cpython-313.pyc and b/tests/__pycache__/__init__.cpython-313.pyc differ
+Binary files a/tests/__pycache__/test_tickets.cpython-313-pytest-9.1.1.pyc and b/tests/__pycache__/test_tickets.cpython-313-pytest-9.1.1.pyc differ
+Binary files a/tickets/__pycache__/__init__.cpython-313.pyc and b/tickets/__pycache__/__init__.cpython-313.pyc differ
+Binary files a/tickets/__pycache__/apps.cpython-313.pyc and b/tickets/__pycache__/apps.cpython-313.pyc differ
+Binary files a/tickets/__pycache__/models.cpython-313.pyc and b/tickets/__pycache__/models.cpython-313.pyc differ
+Binary files a/tickets/__pycache__/services.cpython-313.pyc and b/tickets/__pycache__/services.cpython-313.pyc differ
+Binary files a/tickets/__pycache__/urls.cpython-313.pyc and b/tickets/__pycache__/urls.cpython-313.pyc differ
+Binary files a/tickets/__pycache__/views.cpython-313.pyc and b/tickets/__pycache__/views.cpython-313.pyc differ
+diff -ruN a/tickets/migrations/0001_initial.py b/tickets/migrations/0001_initial.py
+--- a/tickets/migrations/0001_initial.py	2026-11-23 15:24:00.858204902 +0000
++++ b/tickets/migrations/0001_initial.py	2026-11-23 15:24:00.863964477 +0000
+@@ -15,7 +15,7 @@
+                 ("description", models.TextField(blank=True)),
+                 ("customer_email", models.EmailField(max_length=254)),
+                 ("priority", models.CharField(default="medium", max_length=10)),
+-                ("status", models.CharField(choices=[("open", "Open"), ("in_progress", "In progress"), ("closed", "Closed")], default="in_progress", max_length=20)),
++                ("status", models.CharField(choices=[("open", "Open"), ("in_progress", "In progress"), ("closed", "Closed")], default="open", max_length=20)),
+                 ("created_at", models.DateTimeField(auto_now_add=True)),
+                 ("updated_at", models.DateTimeField(auto_now=True)),
+             ],
+Binary files a/tickets/migrations/__pycache__/0001_initial.cpython-313.pyc and b/tickets/migrations/__pycache__/0001_initial.cpython-313.pyc differ
+Binary files a/tickets/migrations/__pycache__/__init__.cpython-313.pyc and b/tickets/migrations/__pycache__/__init__.cpython-313.pyc differ
+diff -ruN a/tickets/models.py b/tickets/models.py
+--- a/tickets/models.py	2026-11-23 15:24:00.858235350 +0000
++++ b/tickets/models.py	2026-11-23 15:24:00.862140367 +0000
+@@ -16,7 +16,7 @@
+     description = models.TextField(blank=True)
+     customer_email = models.EmailField()
+     priority = models.CharField(max_length=10, default="medium")
+-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_IN_PROGRESS)
++    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+     created_at = models.DateTimeField(auto_now_add=True)
+     updated_at = models.DateTimeField(auto_now=True)
+ 
+@@ -31,7 +31,7 @@
+             "created_at": self.created_at.isoformat(),
+         }
+         if include_replies:
+-            data["replies"] = [r.to_dict() for r in self.replies.order_by("-created_at")]
++            data["replies"] = [r.to_dict() for r in self.replies.order_by("created_at", "id")]
+         return data
+ 
+ 
+diff -ruN a/tickets/services.py b/tickets/services.py
+--- a/tickets/services.py	2026-11-23 15:24:00.858274344 +0000
++++ b/tickets/services.py	2026-11-23 15:24:00.864578753 +0000
+@@ -17,4 +17,5 @@
+     reply = ticket.replies.create(author=author, message=message)
+     if author != ticket.customer_email and ticket.status == Ticket.STATUS_OPEN:
+         ticket.status = Ticket.STATUS_IN_PROGRESS
++        ticket.save(update_fields=["status", "updated_at"])
+     return reply
+diff -ruN a/tickets/views.py b/tickets/views.py
+--- a/tickets/views.py	2026-11-23 15:24:00.858283837 +0000
++++ b/tickets/views.py	2026-11-23 15:24:00.878136315 +0000
+@@ -26,14 +26,14 @@
+     if payload is None:
+         return JsonResponse({"errors": {"body": "Invalid JSON."}}, status=400)
+     errors = validate_ticket_payload(payload)
++    if errors:
++        return JsonResponse({"errors": errors}, status=400)
+     ticket = Ticket.objects.create(
+         title=payload.get("title", ""),
+         description=payload.get("description", ""),
+         customer_email=payload.get("customer_email", ""),
+         priority=payload.get("priority", "medium"),
+     )
+-    if errors:
+-        return JsonResponse({"errors": errors}, status=400)
+     return JsonResponse(ticket.to_dict(), status=201)
+ 
+ 
+@@ -47,6 +47,8 @@
+ @require_http_methods(["POST"])
+ def ticket_replies(request, ticket_id):
+     ticket = get_object_or_404(Ticket, pk=ticket_id)
++    if ticket.status == Ticket.STATUS_CLOSED:
++        return JsonResponse({"errors": {"ticket": "Ticket is closed."}}, status=409)
+     payload = _json(request)
+     if payload is None:
+         return JsonResponse({"errors": {"body": "Invalid JSON."}}, status=400)

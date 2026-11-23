@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+data
+imports
+prisma/*.db
+.git
+.env

@@ -1,0 +1,24 @@
+{
+  "id": "orders-node-001",
+  "title": "Marketplace Orders API",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 60,
+  "description": "An Express service that prices and manages customer orders. Totals, pagination and cancellation are misbehaving — fix the service so the test suite passes.",
+  "runtime": { "language": "javascript", "framework": "express", "version": "22", "image": "oa-lab-node:latest" },
+  "workspace": { "root": "/workspace", "entrypoint": "src/server.js" },
+  "execution": {
+    "setup": "npm install --no-audit --no-fund --loglevel=error",
+    "test": "mkdir -p .oa && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=.oa/results.xml",
+    "resultFormat": "junit",
+    "resultPath": ".oa/results.xml",
+    "timeoutSeconds": 120,
+    "env": {}
+  },
+  "resources": { "memoryMb": 1024, "cpus": 1, "pids": 256, "network": false },
+  "scoring": { "type": "test-pass-rate", "maxScore": 100 },
+  "features": { "terminal": true, "editor": true, "aiCoach": true, "gitDiff": true },
+  "readOnly": ["test/", "node_modules/"],
+  "provenance": { "source": "original", "author": "OA Lab", "license": "MIT" }
+}

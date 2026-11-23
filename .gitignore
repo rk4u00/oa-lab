@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.next/
+.turbo/
+*.tsbuildinfo
+.env
+data/
+prisma/*.db
+prisma/*.db-journal
+__pycache__/
+*.pyc
+.pytest_cache/
+next-env.d.ts
+imports/

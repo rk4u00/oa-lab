@@ -1,0 +1,16 @@
+# One command:  docker compose up --build   →  open http://localhost:3000
+services:
+  oa-lab:
+    build: .
+    image: oa-lab:latest
+    container_name: oa-lab
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+    environment:
+      # Host path of ./data — sandbox containers are siblings and need real host paths.
+      OA_HOST_DATA_DIR: ${PWD}/data
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+    restart: unless-stopped

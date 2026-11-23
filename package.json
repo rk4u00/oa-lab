@@ -1,0 +1,36 @@
+{
+  "name": "oa-lab",
+  "private": true,
+  "description": "A local-first online assessment simulator featuring timed coding challenges, AI-assisted repository debugging, integrated IDE, and isolated code execution.",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:migrate": "pnpm --filter @oa-lab/api exec prisma migrate dev",
+    "db:generate": "pnpm --filter @oa-lab/api exec prisma generate",
+    "runtimes:build": "bash scripts/build-runtimes.sh",
+    "validate": "pnpm --filter @oa-lab/api exec tsx ../../scripts/validate-challenge.ts",
+    "oa": "pnpm --filter @oa-lab/api exec tsx ../../scripts/oa.ts"
+  },
+  "devDependencies": {
+    "@prisma/client": "6.19.3",
+    "prisma": "6.19.3",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "esbuild",
+      "@nestjs/core",
+      "cpu-features",
+      "ssh2",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

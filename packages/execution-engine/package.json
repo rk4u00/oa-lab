@@ -1,0 +1,10 @@
+{
+  "name": "@oa-lab/execution-engine",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": { "build": "tsc -p tsconfig.json", "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "node --test 'dist/**/*.test.js'" },
+  "dependencies": { "@oa-lab/shared": "workspace:*", "fast-xml-parser": "^5.2.5" },
+  "devDependencies": { "@types/node": "^22.15.0", "typescript": "^5.8.3" }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "amazon-debugging-question-q5-node-gift-wallet",
+  "title": "Q5 \u00b7 Gift Card Wallet \u00b7 Node.js (Express) \u00b7 Easy",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 30,
+  "description": "Imported Node.js practice repository (q5-node-gift-wallet). Read the task, make the failing tests pass without editing them.",
+  "taskFile": "../../q5-node-gift-wallet/README.md",
+  "coachPromptFile": "../../AI_COACH_PROMPT.md",
+  "starterDir": "../../q5-node-gift-wallet",
+  "runtime": {
+    "language": "javascript",
+    "framework": "express",
+    "image": "oa-lab-node:latest"
+  },
+  "workspace": {
+    "root": "/workspace"
+  },
+  "execution": {
+    "setup": "npm install --no-audit --no-fund --loglevel=error",
+    "test": "mkdir -p .oa && npx --no-install jest --runInBand --ci --json --outputFile=.oa/results.json",
+    "targetTemplate": "{test} {target}",
+    "resultFormat": "jest-json",
+    "resultPath": ".oa/results.json",
+    "timeoutSeconds": 180,
+    "env": {
+      "CI": "true"
+    }
+  },
+  "resources": {
+    "memoryMb": 1024,
+    "cpus": 1,
+    "pids": 512,
+    "network": false
+  },
+  "scoring": {
+    "type": "test-pass-rate",
+    "maxScore": 100
+  },
+  "features": {
+    "terminal": true,
+    "editor": true,
+    "aiCoach": true,
+    "gitDiff": true
+  },
+  "readOnly": [
+    "tests/"
+  ],
+  "provenance": {
+    "source": "third-party",
+    "url": "https://github.com/govindchandak/Amazon-debugging-question",
+    "license": "No license file in upstream repository \u2014 included with attribution for practice use"
+  }
+}

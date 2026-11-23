@@ -1,0 +1,56 @@
+{
+  "id": "amazon-debugging-question-q1-django-wishlist",
+  "title": "Q1 \u00b7 Wishlist \u00b7 Django \u00b7 Easy",
+  "company": "amazon",
+  "category": "repository-debugging",
+  "difficulty": "medium",
+  "durationMinutes": 30,
+  "description": "Imported Django practice repository (q1-django-wishlist). Read the task, make the failing tests pass without editing them.",
+  "taskFile": "../../q1-django-wishlist/README.md",
+  "coachPromptFile": "../../AI_COACH_PROMPT.md",
+  "starterDir": "../../q1-django-wishlist",
+  "runtime": {
+    "language": "python",
+    "framework": "django",
+    "image": "oa-lab-python:latest"
+  },
+  "workspace": {
+    "root": "/workspace"
+  },
+  "execution": {
+    "setup": "pip install -q --disable-pip-version-check --target .oa/pydeps -r requirements.txt",
+    "test": "mkdir -p .oa && python -m pytest -q -p no:cacheprovider --ds=config.settings -o \"python_files=tests.py test_*.py *_tests.py\" --junitxml=.oa/results.xml",
+    "targetTemplate": "{test} {target}",
+    "resultFormat": "junit",
+    "resultPath": ".oa/results.xml",
+    "timeoutSeconds": 180,
+    "env": {
+      "PYTHONPATH": "/workspace/.oa/pydeps",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    }
+  },
+  "resources": {
+    "memoryMb": 1024,
+    "cpus": 1,
+    "pids": 512,
+    "network": false
+  },
+  "scoring": {
+    "type": "test-pass-rate",
+    "maxScore": 100
+  },
+  "features": {
+    "terminal": true,
+    "editor": true,
+    "aiCoach": true,
+    "gitDiff": true
+  },
+  "readOnly": [
+    "wishlist/tests.py"
+  ],
+  "provenance": {
+    "source": "third-party",
+    "url": "https://github.com/govindchandak/Amazon-debugging-question",
+    "license": "No license file in upstream repository \u2014 included with attribution for practice use"
+  }
+}

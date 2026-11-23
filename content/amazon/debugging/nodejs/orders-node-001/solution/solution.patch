@@ -1,0 +1,59 @@
+diff -ruN a/src/catalog.js b/src/catalog.js
+--- a/src/catalog.js	2026-11-23 15:25:25.911320936 +0000
++++ b/src/catalog.js	2026-11-23 15:25:28.007579056 +0000
+@@ -6,7 +6,7 @@
+ };
+ 
+ const COUPONS = {
+-  SAVE10: { percentOff: '10' },
++  SAVE10: { percentOff: 10 },
+ };
+ 
+ module.exports = { CATALOG, COUPONS };
+diff -ruN a/src/routes/orders.js b/src/routes/orders.js
+--- a/src/routes/orders.js	2026-11-23 15:25:25.911157099 +0000
++++ b/src/routes/orders.js	2026-11-23 15:25:28.007665021 +0000
+@@ -26,7 +26,8 @@
+ 
+ router.post('/:id/cancel', (req, res) => {
+   const order = store.get(req.params.id);
+-  if (order.status === 'shipped') throw new HttpError(409, 'order already shipped');
++  if (!order) throw new HttpError(404, 'order not found');
++  if (order.status !== 'pending') throw new HttpError(409, `cannot cancel a ${order.status} order`);
+   res.json(store.update(order.id, { status: 'cancelled' }));
+ });
+ 
+diff -ruN a/src/services/pricing.js b/src/services/pricing.js
+--- a/src/services/pricing.js	2026-11-23 15:25:25.911242367 +0000
++++ b/src/services/pricing.js	2026-11-23 15:25:28.007457298 +0000
+@@ -8,7 +8,7 @@
+   const lines = items.map(({ sku, quantity }) => {
+     const product = CATALOG[sku];
+     if (!product) throw new HttpError(400, `unknown sku ${sku}`);
+-    if (!Number.isInteger(quantity) || quantity < 0) throw new HttpError(400, 'quantity must be >= 1');
++    if (!Number.isInteger(quantity) || quantity < 1) throw new HttpError(400, 'quantity must be >= 1');
+     const lineTotal = product.unitPrice * quantity;
+     subtotal += lineTotal;
+     return { sku, quantity, unitPrice: product.unitPrice, lineTotal };
+@@ -17,7 +17,8 @@
+   let discount = 0;
+   if (couponCode) {
+     const coupon = COUPONS[couponCode];
+-    if (coupon) discount = Math.floor(subtotal * coupon.percentOff / 100);
++    if (!coupon) throw new HttpError(400, `unknown coupon ${couponCode}`);
++    discount = Math.round((subtotal * coupon.percentOff) / 100);
+   }
+ 
+   return { lines, subtotal, discount, total: subtotal - discount };
+diff -ruN a/src/services/store.js b/src/services/store.js
+--- a/src/services/store.js	2026-11-23 15:25:25.911251672 +0000
++++ b/src/services/store.js	2026-11-23 15:25:28.007612131 +0000
+@@ -12,7 +12,7 @@
+ }
+ 
+ function list(page, pageSize) {
+-  const start = page * pageSize;
++  const start = (page - 1) * pageSize;
+   return { items: orders.slice(start, start + pageSize), page, pageSize, total: orders.length };
+ }
+ 
