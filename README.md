@@ -7,7 +7,7 @@ Timed, AI-assisted repository debugging in a browser IDE (Monaco editor, real te
 
 ## Quick start (students)
 
-Requirements: **Docker Desktop** (running) and `git`.
+Requirements: **Docker Desktop** (running) and `git`. In Docker Desktop → Settings → Resources, give Docker at least **4 GB** of memory (**6 GB** or more for Spring Boot questions).
 
 ```bash
 git clone https://github.com/rk4u00/oa-lab.git
@@ -15,9 +15,11 @@ cd oa-lab
 docker compose up
 ```
 
-The first run builds the image automatically. After `git pull`, use `docker compose up --build`. Then open **http://localhost:3000**, then pick an assessment or any challenge and click **Start**.
+Open **http://localhost:3000**, pick an assessment or a single challenge, and click **Start**.
 
-The first start builds the sandbox images (Python/Django, Node.js, Java/Spring Boot) and installs each challenge's dependencies the first time you open it, so it takes a few minutes. Later starts are fast.
+- **First run is slow (a few minutes).** It builds the app image and the sandbox images (Python/Django, Node.js, Java/Spring Boot), and installs each challenge's dependencies the first time you open it. Later starts are fast.
+- **After `git pull`**, rebuild with `docker compose up --build`.
+- **To stop**, press `Ctrl+C` or run `docker compose down`. Your attempts are kept in `./data`.
 
 Without Compose (one `docker run`):
 
@@ -34,8 +36,24 @@ docker run --rm -p 3000:3000 -p 4000:4000 \
 |---|---|
 | **20 debugging challenges** | Django (9), Spring Boot (7), Node.js / Express (5). Each one ships a failing test suite. |
 | **3 assessment sets** | Amazon SDE practice OA (Django + Node), *Amazon-debugging-question* set, *Debugging Set 2* |
-| **IDE** | File explorer, Monaco tabs + autosave, xterm.js terminal inside the sandbox, test results, git-style diff, task panel, AI-coach prompt |
+| **IDE** | Question panel, file explorer, Monaco editor with tabs and autosave, Ctrl/Cmd+click Go to Definition, Find References, Markdown preview, a real terminal inside the sandbox, test results, diff of your changes, AI-coach prompt |
 | **Assessment engine** | Server-side timers, auto-submit on expiry, protected test files restored before grading, score = test pass rate |
+
+## Using the IDE
+
+| Action | How |
+|---|---|
+| Run the tests | **Run Tests** button, or `Ctrl/Cmd+'` |
+| Run some of the tests | Type a target in the Test Results tab: a file such as `tests/test_m1_python.py`, a `-k` expression, or a Java test class |
+| Save | Files autosave. `Ctrl/Cmd+S` saves immediately |
+| Go to a function's definition | `Ctrl/Cmd+click` it, or `F12`. It opens the file and jumps to the line |
+| Peek a definition / find all usages | `Alt+F12` / `Shift+F12` |
+| Find / replace, command palette | `Ctrl/Cmd+F`, `Ctrl/Cmd+H`, `F1` |
+| Read Markdown nicely | `.md` files open rendered. Switch between **Preview**, **Split** and **Edit** in the tab bar |
+| Undo all your changes | Reset button (↺) in the Files panel |
+| Get AI help | **AI Coach** tab. It copies a prompt with the task and your failing tests for Claude, Cursor, Copilot and others |
+
+Test files are locked (🔒). If you change them from the terminal anyway, the originals are restored before final grading.
 
 ## How it works
 
@@ -82,7 +100,7 @@ pnpm oa import https://github.com/<owner>/<repo>    # detects Django / Spring Bo
 pnpm validate                                       # validate every manifest
 ```
 
-The importer writes manifests into `imports/<repo>/.oa-lab/`. To ship them with OA Lab, move the folder into `content/imported/`. You can also import from the dashboard ("Import repository").
+The importer writes manifests into `imports/<repo>/.oa-lab/`. You can also import from the dashboard ("Import repository"); when OA Lab runs in Docker those land in `data/imports/`. To ship them with OA Lab for everyone, copy the folder into `content/imported/` (without its `.git`) and commit it.
 
 ## Development (without the app container)
 
@@ -95,6 +113,24 @@ pnpm dev                   # web :3000, api :4000
 ```
 
 `OA_EXECUTION_DRIVER=local` runs challenge code directly on the host, with no isolation. Use it only to develop OA Lab itself.
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `Cannot connect to the Docker daemon` / "Docker unavailable" badge | Start Docker Desktop, wait until it's running, then `docker compose up` again. |
+| A question stays on "Preparing your workspace" | The first open of a question installs its dependencies (Spring Boot takes the longest). Watch progress with `docker compose logs -f`. |
+| Spring Boot tests are killed or very slow | Give Docker Desktop more memory (6–8 GB). |
+| Terminal says "session closed" | Press **Reconnect**. Stopped sandboxes are recreated automatically. |
+| `ERR_PNPM_OUTDATED_LOCKFILE` while building | Run `git pull` to get the latest lockfile, then `docker compose up --build`. |
+| Start completely fresh | `docker compose down`, then delete the `data/` folder. |
+
+## Hosting on a server
+
+OA Lab is built for one user on their own machine. If you host it:
+- **Add a login first.** There is none yet, and anyone who can open the page gets a terminal inside the sandboxes, so put it behind a VPN, SSH tunnel, or a reverse proxy with authentication.
+- **Rebuild for the server's address.** Pass `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL` as build arguments (for example `https://oa.example.com:4000`).
+- **Size:** 2 vCPU / 4 GB RAM is enough for Django/Node questions; use 4 vCPU / 8 GB for Spring Boot.
 
 ## Security model
 
