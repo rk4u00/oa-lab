@@ -1,0 +1,29 @@
+# Server override: HTTPS via Caddy, API under /api, app ports not exposed publicly.
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.server.yml --env-file deploy/.env up -d --build
+services:
+  oa-lab:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: https://${OA_DOMAIN}/api
+        NEXT_PUBLIC_WS_URL: wss://${OA_DOMAIN}/api
+    ports: !reset []
+    environment:
+      OA_HOST_DATA_DIR: ${OA_HOST_DATA_DIR}
+      WEB_ORIGIN: https://${OA_DOMAIN}
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      OA_DOMAIN: ${OA_DOMAIN}
+      OA_BASIC_USER: ${OA_BASIC_USER}
+      OA_BASIC_HASH: ${OA_BASIC_HASH}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - oa-lab
+volumes:
+  caddy_data:

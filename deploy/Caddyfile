@@ -1,0 +1,12 @@
+{$OA_DOMAIN} {
+	encode gzip
+	basic_auth {
+		{$OA_BASIC_USER} {$OA_BASIC_HASH}
+	}
+	handle_path /api/* {
+		reverse_proxy oa-lab:4000
+	}
+	handle {
+		reverse_proxy oa-lab:3000
+	}
+}

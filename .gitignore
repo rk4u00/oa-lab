@@ -12,3 +12,7 @@ __pycache__/
 .pytest_cache/
 next-env.d.ts
 /imports/
+
+# SSH keys for the hosted VM (never commit)
+.keys/
+deploy/.env

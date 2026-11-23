@@ -7,3 +7,4 @@ imports
 prisma/*.db
 .git
 .env
+.keys
