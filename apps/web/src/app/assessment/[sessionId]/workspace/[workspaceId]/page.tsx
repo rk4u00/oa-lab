@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle, type ImperativePanelHandle } from 'react-resizable-panels';
-import { ArrowLeft, CheckCircle2, Clock, FileCode2, FileDiff, FlaskConical, LayoutList, Lock, PanelLeftClose, PanelLeftOpen, Play, RefreshCw, RotateCcw, ShieldCheck, SquareTerminal, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Columns2, Eye, Pencil, FileCode2, FileDiff, FlaskConical, LayoutList, Lock, PanelLeftClose, PanelLeftOpen, Play, RefreshCw, RotateCcw, ShieldCheck, SquareTerminal, X } from 'lucide-react';
 import type { FileNode } from '@oa-lab/shared';
 import { api, formatDuration, frameworkLabel, type Diff, type Session, type TestRun, type WorkspaceDetails } from '@/lib/api';
 import { ConfirmDialog, ErrorBox, Logo, Spinner, useCountdown } from '@/components/ui';
 import { CodeEditor } from '@/components/ide/CodeEditor';
+import { Markdown } from '@/components/Markdown';
 import { FileTree, isReadOnlyPath } from '@/components/ide/FileTree';
 import { TabButton, TaskPanel } from '@/components/ide/TaskPanel';
 import { TerminalPane } from '@/components/ide/TerminalPane';
@@ -90,6 +91,8 @@ export default function WorkspacePage() {
   return <Ide details={details} session={session} sessionId={sessionId} workspaceId={workspaceId} onRefresh={loadDetails} onExpired={() => router.push(`/assessment/${sessionId}`)} />;
 }
 
+const isMarkdown = (p: string) => /\.(md|markdown)$/i.test(p);
+
 function Centered({ children }: { children: React.ReactNode }) {
   return <div className="grid min-h-screen place-items-center p-4">{children}</div>;
 }
@@ -126,6 +129,8 @@ function Ide({
   const [error, setError] = useState<unknown>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [taskOpen, setTaskOpen] = useState(true);
+  // Markdown files open rendered; per-file view mode.
+  const [mdMode, setMdMode] = useState<Record<string, 'preview' | 'edit' | 'split'>>({});
   const [confirm, setConfirm] = useState<null | 'submit' | 'reset'>(null);
   const [busy, setBusy] = useState(false);
   const taskRef = useRef<ImperativePanelHandle>(null);
@@ -449,20 +454,56 @@ function Ide({
                           </div>
                         ))}
                         <div className="flex-1" />
-                        {activeTab && <span className="hidden items-center px-3 font-mono text-[11px] text-muted xl:flex">{activeTab.path}</span>}
+                        {activeTab && isMarkdown(activeTab.path) && !activeTab.binary && (
+                          <div className="flex items-center gap-0.5 px-2">
+                            {(['preview', 'split', 'edit'] as const).map((m) => (
+                              <button
+                                key={m}
+                                onClick={() => setMdMode((x) => ({ ...x, [activeTab.path]: m }))}
+                                className={`flex h-7 items-center gap-1 rounded px-2 text-xs font-semibold capitalize transition ${
+                                  (mdMode[activeTab.path] ?? 'preview') === m ? 'bg-panel text-fg shadow-sm ring-1 ring-line' : 'text-muted hover:text-fg'
+                                }`}
+                              >
+                                {m === 'preview' ? <Eye className="h-3.5 w-3.5" /> : m === 'split' ? <Columns2 className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+                                {m}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {activeTab && !isMarkdown(activeTab.path) && <span className="hidden items-center px-3 font-mono text-[11px] text-muted xl:flex">{activeTab.path}</span>}
                       </div>
                       <div className="min-h-0 flex-1">
                         {activeTab ? (
                           activeTab.binary ? (
                             <div className="p-4 text-sm text-muted">Binary file — not shown.</div>
                           ) : (
-                            <CodeEditor
+(() => {
+                              const mode = isMarkdown(activeTab.path) ? (mdMode[activeTab.path] ?? 'preview') : 'edit';
+                              const ed = (
+                                <CodeEditor
                               path={activeTab.path}
                               value={activeTab.content}
                               readOnly={activeTab.readOnly || !active}
                               onChange={(v) => setTabs((ts) => ts.map((t) => (t.path === activeTab.path ? { ...t, content: v } : t)))}
                               onSave={() => void save(activeTab.path)}
                             />
+                              );
+                              const preview = (
+                                <div className="h-full overflow-auto bg-panel px-8 py-6">
+                                  <div className="mx-auto max-w-3xl">
+                                    <Markdown>{activeTab.content}</Markdown>
+                                  </div>
+                                </div>
+                              );
+                              if (mode === 'edit') return ed;
+                              if (mode === 'preview') return preview;
+                              return (
+                                <div className="grid h-full grid-cols-2 divide-x divide-line">
+                                  <div className="min-w-0">{ed}</div>
+                                  <div className="min-w-0">{preview}</div>
+                                </div>
+                              );
+                            })()
                           )
                         ) : (
                           <div className="grid h-full place-items-center text-center">
