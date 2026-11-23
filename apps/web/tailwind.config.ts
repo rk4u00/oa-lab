@@ -15,6 +15,9 @@ export default {
         ok: 'rgb(var(--ok) / <alpha-value>)',
         bad: 'rgb(var(--bad) / <alpha-value>)',
         warn: 'rgb(var(--warn) / <alpha-value>)',
+        nav: 'rgb(var(--nav) / <alpha-value>)',
+        navline: 'rgb(var(--navline) / <alpha-value>)',
+        console: 'rgb(var(--console) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

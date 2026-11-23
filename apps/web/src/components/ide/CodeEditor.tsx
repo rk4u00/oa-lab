@@ -16,17 +16,20 @@ function ensureMonaco() {
       const monaco = await import('monaco-editor/esm/vs/editor/editor.api.js');
       // Syntax highlighting for every language Monaco ships (Monarch tokenizers, no language servers).
       await import('monaco-editor/esm/vs/basic-languages/monaco.contribution.js');
-      monaco.editor.defineTheme('oa-dark', {
-        base: 'vs-dark',
+      monaco.editor.defineTheme('oa-light', {
+        base: 'vs',
         inherit: true,
         rules: [],
         colors: {
-          'editor.background': '#0c0c0e',
-          'editor.lineHighlightBackground': '#18181b',
-          'editorLineNumber.foreground': '#52525b',
-          'editorGutter.background': '#0c0c0e',
-          'editor.selectionBackground': '#f59e0b33',
-          'editorCursor.foreground': '#f59e0b',
+          'editor.background': '#ffffff',
+          'editor.lineHighlightBackground': '#f3f5f7',
+          'editor.lineHighlightBorder': '#00000000',
+          'editorLineNumber.foreground': '#9aa3ad',
+          'editorLineNumber.activeForeground': '#0e141e',
+          'editorGutter.background': '#f7f8fa',
+          'editorIndentGuide.background1': '#eceef1',
+          'editor.selectionBackground': '#1e9d5033',
+          'editorCursor.foreground': '#0e141e',
         },
       });
       loader.config({ monaco });
@@ -81,7 +84,7 @@ export function CodeEditor({
       path={path}
       value={value}
       language={languageFor(path)}
-      theme="oa-dark"
+      theme="oa-light"
       onChange={(v) => onChange(v ?? '')}
       onMount={onMount}
       loading={<Spinner />}

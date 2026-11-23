@@ -3,51 +3,62 @@
 @tailwind utilities;
 
 :root {
-  --bg: 12 12 14;
-  --panel: 20 20 23;
-  --raised: 30 30 34;
-  --line: 44 44 50;
-  --fg: 228 228 231;
-  --muted: 140 140 150;
-  --accent: 245 158 11;
-  --ok: 74 222 128;
-  --bad: 248 113 113;
-  --warn: 250 204 21;
-  color-scheme: dark;
+  /* Light, assessment-platform palette */
+  --bg: 243 245 247;
+  --panel: 255 255 255;
+  --raised: 246 247 249;
+  --line: 223 227 232;
+  --fg: 14 20 30;
+  --muted: 92 101 112;
+  --accent: 30 157 80;      /* primary green */
+  --ok: 30 157 80;
+  --bad: 220 53 69;
+  --warn: 214 128 0;
+  --nav: 14 20 30;          /* dark navy top bar */
+  --navline: 38 48 62;
+  --console: 17 22 29;
+  color-scheme: light;
 }
 
 html, body { height: 100%; }
-body { @apply bg-bg text-fg font-sans antialiased; }
+body { @apply bg-bg text-fg font-sans antialiased; font-size: 14px; }
 
 @layer components {
-  .btn { @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-raised px-3 py-1.5 text-sm font-medium text-fg transition hover:border-muted/60 disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-primary { @apply border-accent bg-accent text-black hover:brightness-110; }
-  .btn-danger { @apply border-bad/50 bg-bad/10 text-bad hover:bg-bad/20; }
-  .btn-ghost { @apply border-transparent bg-transparent hover:bg-raised; }
-  .btn-sm { @apply px-2 py-1 text-xs; }
-  .card { @apply rounded-lg border border-line bg-panel; }
-  .badge { @apply inline-flex items-center gap-1 rounded border border-line bg-raised px-1.5 py-0.5 text-[11px] font-medium text-muted; }
-  .input { @apply w-full rounded-md border border-line bg-bg px-3 py-1.5 text-sm text-fg placeholder:text-muted/60 focus:border-accent focus:outline-none; }
+  .btn { @apply inline-flex h-9 items-center gap-1.5 rounded border border-line bg-panel px-4 text-sm font-semibold text-fg shadow-sm transition hover:border-fg/30 hover:bg-raised disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply border-accent bg-accent text-white hover:border-accent hover:bg-accent hover:brightness-95; }
+  .btn-outline { @apply border-accent bg-panel text-accent hover:border-accent hover:bg-accent/5; }
+  .btn-danger { @apply border-bad bg-bad text-white hover:border-bad hover:bg-bad hover:brightness-95; }
+  .btn-ghost { @apply border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-raised; }
+  .btn-sm { @apply h-7 px-2.5 text-xs; }
+  .btn-nav { @apply inline-flex h-8 items-center gap-1.5 rounded border border-white/25 bg-transparent px-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50; }
+  .card { @apply rounded-md border border-line bg-panel shadow-[0_1px_2px_rgba(14,20,30,0.06)]; }
+  .badge { @apply inline-flex items-center gap-1 rounded-sm border border-line bg-raised px-1.5 py-0.5 text-[11px] font-medium text-muted; }
+  .input { @apply h-9 w-full rounded border border-line bg-panel px-3 text-sm text-fg placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15; }
   .label { @apply text-[11px] font-semibold uppercase tracking-wider text-muted; }
+  .topnav { @apply bg-nav text-white; }
+  .diff-easy { @apply text-ok; }
+  .diff-medium { @apply text-warn; }
+  .diff-hard { @apply text-bad; }
 }
 
 /* Markdown task panel */
-.prose-oa { @apply text-sm leading-relaxed text-fg/90; }
-.prose-oa h1 { @apply mb-3 text-lg font-semibold text-fg; }
-.prose-oa h2 { @apply mb-2 mt-5 text-base font-semibold text-fg; }
+.prose-oa { @apply text-[14px] leading-[1.7] text-fg/90; }
+.prose-oa h1 { @apply mb-4 text-xl font-bold text-fg; }
+.prose-oa h2 { @apply mb-2 mt-6 border-b border-line pb-1 text-base font-bold text-fg; }
 .prose-oa h3 { @apply mb-2 mt-4 text-sm font-semibold text-fg; }
 .prose-oa p { @apply my-2; }
 .prose-oa ul { @apply my-2 list-disc pl-5; }
 .prose-oa ol { @apply my-2 list-decimal pl-5; }
 .prose-oa li { @apply my-1; }
-.prose-oa code { @apply rounded bg-raised px-1 py-0.5 font-mono text-[12px] text-accent; }
-.prose-oa pre { @apply my-3 overflow-x-auto rounded-md border border-line bg-bg p-3; }
+.prose-oa code { @apply rounded-sm border border-line bg-raised px-1 py-px font-mono text-[12.5px] text-fg; }
+.prose-oa pre { @apply my-3 overflow-x-auto rounded border border-line bg-raised p-3; }
+.prose-oa pre code { @apply border-0; }
 .prose-oa pre code { @apply bg-transparent p-0 text-fg/90; }
 .prose-oa a { @apply text-accent underline; }
 .prose-oa table { @apply my-3 w-full border-collapse text-xs; }
 .prose-oa th, .prose-oa td { @apply border border-line px-2 py-1 text-left align-top; }
 .prose-oa th { @apply bg-raised; }
-.prose-oa blockquote { @apply border-l-2 border-accent pl-3 text-muted; }
+.prose-oa blockquote { @apply my-3 border-l-4 border-accent/60 bg-accent/5 py-1 pl-3 text-fg/80; }
 .prose-oa strong { @apply text-fg; }
 
 /* Resize handles */
@@ -55,4 +66,7 @@ body { @apply bg-bg text-fg font-sans antialiased; }
 [data-panel-resize-handle-id][data-resize-handle-state="hover"],
 [data-panel-resize-handle-id][data-resize-handle-state="drag"] { @apply bg-accent; }
 
-.xterm { height: 100%; padding: 6px; }
+.xterm { height: 100%; padding: 8px; }
+
+/* Thin scrollbars */
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--line)) transparent; }

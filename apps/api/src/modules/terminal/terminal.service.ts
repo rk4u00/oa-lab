@@ -5,6 +5,7 @@ import Docker from 'dockerode';
 import { WebSocket, WebSocketServer } from 'ws';
 import { EXECUTION_DRIVER, ExecutionDriver } from '../../common/driver.provider';
 import { PrismaService } from '../../common/prisma.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 
 type ClientMsg = { type: 'input'; data: string } | { type: 'resize'; cols: number; rows: number };
 
@@ -20,6 +21,7 @@ export class TerminalService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly workspaces: WorkspacesService,
     @Inject(EXECUTION_DRIVER) private readonly driver: ExecutionDriver,
   ) {}
 
@@ -43,10 +45,16 @@ export class TerminalService {
     const w = await this.prisma.workspace.findUnique({ where: { id: workspaceId }, include: { sectionAttempt: true } });
     if (!w) throw new Error('Workspace not found');
     if (w.sectionAttempt.status !== 'IN_PROGRESS') throw new Error('This section is no longer in progress.');
-    if (w.status !== 'RUNNING' || !w.containerHandle) throw new Error(`Workspace is ${w.status.toLowerCase()} — the terminal opens once it is running.`);
+    if (w.status === 'PREPARING' || w.status === 'FAILED') throw new Error(`Workspace is ${w.status.toLowerCase()} — the terminal opens once it is running.`);
     if (this.driver.name === 'local') return this.handleLocal(ws, w.hostPath);
 
-    const container = this.docker.getContainer(w.containerHandle);
+    // Self-heal: the sandbox container may be gone (Docker or OA Lab restarted). Files live on disk, so recreate it.
+    let handle = w.containerHandle;
+    if (!handle || !(await this.driver.isWorkspaceRunning(handle))) {
+      ws.send('\x1b[90mStarting sandbox…\x1b[0m\r\n');
+      handle = (await this.workspaces.start(workspaceId)).containerHandle!;
+    }
+    const container = this.docker.getContainer(handle);
     const exec = await container.exec({
       Cmd: ['bash', '-l'],
       AttachStdin: true,

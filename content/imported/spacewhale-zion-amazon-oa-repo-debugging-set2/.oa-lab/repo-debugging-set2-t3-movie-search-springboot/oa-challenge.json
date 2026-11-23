@@ -3,7 +3,7 @@
   "title": "Task 3 \u2014 Movie Search Against Five Search Rules (Spring Boot)",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "durationMinutes": 60,
   "description": "Imported Spring Boot practice repository (t3-movie-search/springboot). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../t3-movie-search/springboot/README.md",

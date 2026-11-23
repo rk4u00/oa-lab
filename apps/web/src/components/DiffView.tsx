@@ -6,7 +6,7 @@ import type { DiffFile } from '@/lib/api';
 
 function lineClass(l: string) {
   if (l.startsWith('+++') || l.startsWith('---')) return 'text-muted';
-  if (l.startsWith('@@')) return 'text-sky-400 bg-sky-400/5';
+  if (l.startsWith('@@')) return 'text-sky-700 bg-sky-50';
   if (l.startsWith('+')) return 'text-ok bg-ok/10';
   if (l.startsWith('-')) return 'text-bad bg-bad/10';
   if (l.startsWith('=====') || l.startsWith('Index:')) return 'hidden';
@@ -15,7 +15,7 @@ function lineClass(l: string) {
 
 export function PatchBlock({ patch }: { patch: string }) {
   return (
-    <pre className="overflow-x-auto bg-bg font-mono text-[12px] leading-[1.55]">
+    <pre className="overflow-x-auto bg-panel font-mono text-[12px] leading-[1.55]">
       {patch.split('\n').map((l, i) => (
         <div key={i} className={`whitespace-pre px-3 ${lineClass(l)}`}>{l || ' '}</div>
       ))}

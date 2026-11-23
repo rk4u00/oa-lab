@@ -8,7 +8,7 @@ export function TestSummaryBar({ passed, total, failed }: { passed: number; tota
   const pct = total ? (passed / total) * 100 : 0;
   return (
     <div className="flex items-center gap-3">
-      <div className="h-1.5 w-40 overflow-hidden rounded-full bg-bad/30">
+      <div className="h-2 w-44 overflow-hidden rounded-full bg-bad/20">
         <div className="h-full bg-ok transition-all" style={{ width: `${pct}%` }} />
       </div>
       <span className="font-mono text-xs">
@@ -31,7 +31,7 @@ export function TestList({ tests }: { tests: TestCaseResult[] }) {
         return (
           <li key={i}>
             <button
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-raised/60"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-[13px] hover:bg-raised/60"
               onClick={() => t.message && setOpen((o) => ({ ...o, [i]: !o[i] }))}
             >
               {t.message ? (open[i] ? <ChevronDown className="h-3 w-3 text-muted" /> : <ChevronRight className="h-3 w-3 text-muted" />) : <span className="w-3" />}
@@ -40,7 +40,7 @@ export function TestList({ tests }: { tests: TestCaseResult[] }) {
               {t.durationMs !== undefined && <span className="font-mono text-muted">{t.durationMs}ms</span>}
             </button>
             {open[i] && t.message && (
-              <pre className="mx-3 mb-2 max-h-72 overflow-auto rounded border border-line bg-bg p-2 font-mono text-[11px] leading-relaxed text-bad/90">{t.message}</pre>
+              <pre className="mx-3 mb-2 max-h-72 overflow-auto rounded border border-bad/20 bg-bad/5 p-2 font-mono text-[11px] leading-relaxed text-bad/90">{t.message}</pre>
             )}
           </li>
         );

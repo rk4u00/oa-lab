@@ -106,6 +106,13 @@ async function durationFrom(readmePath: string | undefined) {
   return n >= 15 && n <= 180 ? n : 60;
 }
 
+async function difficultyFrom(title: string, readmePath: string | undefined): Promise<'easy' | 'medium' | 'hard'> {
+  const t = title.match(/\b(easy|medium|hard)\b/i)?.[1];
+  if (t) return t.toLowerCase() as 'easy' | 'medium' | 'hard';
+  const r = readmePath ? (await fs.readFile(readmePath, 'utf8')).match(/(?:level|difficulty)\s*[:|]?\s*\**\s*(easy|medium|hard)/i)?.[1] : undefined;
+  return (r?.toLowerCase() as 'easy' | 'medium' | 'hard') ?? 'medium';
+}
+
 async function testDirs(dir: string, kind: DetectedProject['kind']) {
   const ro: string[] = [];
   const candidates = kind === 'maven' ? ['src/test/'] : ['tests/', 'test/', '__tests__/'];
@@ -188,7 +195,7 @@ async function manifestFor(repoRoot: string, project: DetectedProject, repoSlug:
     title,
     company,
     category: 'repository-debugging',
-    difficulty: 'medium',
+    difficulty: await difficultyFrom(title, rd),
     durationMinutes: await durationFrom(rd),
     description: `Imported ${label} practice repository (${project.rel === '.' ? repoSlug : project.rel}). Read the task, make the failing tests pass without editing them.`,
     taskFile: rd ? relFromChallenge(rd) : 'TASK.md',

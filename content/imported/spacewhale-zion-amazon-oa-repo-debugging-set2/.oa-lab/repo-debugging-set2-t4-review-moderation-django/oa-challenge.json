@@ -3,7 +3,7 @@
   "title": "Task 4 \u2014 Review Content Moderation (Django)",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "durationMinutes": 60,
   "description": "Imported Django practice repository (t4-review-moderation/django). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../t4-review-moderation/django/README.md",

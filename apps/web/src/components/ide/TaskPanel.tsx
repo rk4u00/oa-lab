@@ -36,15 +36,15 @@ export function TaskPanel({ workspaceId, task, aiCoach, aiPolicy }: { workspaceI
 
   return (
     <div className="flex h-full flex-col bg-panel">
-      <div className="flex h-9 shrink-0 items-center gap-1 border-b border-line px-2">
-        <TabButton active={tab === 'task'} onClick={() => setTab('task')}><FileText className="h-3.5 w-3.5" /> Task</TabButton>
+      <div className="flex h-11 shrink-0 items-end gap-1 border-b border-line px-4">
+        <TabButton active={tab === 'task'} onClick={() => setTab('task')}><FileText className="h-3.5 w-3.5" /> Question</TabButton>
         {showCoach && (
           <TabButton active={tab === 'coach'} onClick={() => { setTab('coach'); if (!prompt) void loadCoach(); }}>
             <Bot className="h-3.5 w-3.5" /> AI Coach
           </TabButton>
         )}
       </div>
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+      <div className="min-h-0 flex-1 overflow-auto px-6 py-5">
         {tab === 'task' ? (
           <Markdown>{task}</Markdown>
         ) : (
@@ -61,7 +61,7 @@ export function TaskPanel({ workspaceId, task, aiCoach, aiPolicy }: { workspaceI
               </button>
             </div>
             <ErrorBox error={error} />
-            {prompt && <pre className="whitespace-pre-wrap rounded-md border border-line bg-bg p-3 font-mono text-[11px] leading-relaxed text-fg/80">{prompt}</pre>}
+            {prompt && <pre className="whitespace-pre-wrap rounded border border-line bg-raised p-3 font-mono text-[11px] leading-relaxed text-fg/80">{prompt}</pre>}
           </div>
         )}
       </div>
@@ -73,7 +73,7 @@ export function TabButton({ active, onClick, children }: { active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={`flex h-7 items-center gap-1.5 rounded px-2 text-xs font-medium transition ${active ? 'bg-raised text-fg' : 'text-muted hover:text-fg'}`}
+      className={`-mb-px flex h-full items-center gap-1.5 border-b-2 px-3 text-[13px] font-semibold transition ${active ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}
     >
       {children}
     </button>

@@ -3,7 +3,7 @@
   "title": "Task 4 \u2014 Review Content Moderation (Spring Boot)",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "durationMinutes": 60,
   "description": "Imported Spring Boot practice repository (t4-review-moderation/springboot). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../t4-review-moderation/springboot/README.md",

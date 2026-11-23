@@ -68,7 +68,7 @@ export default function SessionOverview() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line">
+      <header className="topnav">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           <Logo />
           <HealthBadge />

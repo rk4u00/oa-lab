@@ -5,13 +5,40 @@ import { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Loader2, XCircle } from 'lucide-react';
 import { api, type Health } from '@/lib/api';
 
-export function Logo({ href = '/' }: { href?: string }) {
+export function Logo({ href = '/', light = true }: { href?: string; light?: boolean }) {
   return (
-    <Link href={href} className="flex items-center gap-2 font-mono text-sm font-bold tracking-[0.2em] text-fg">
-      <span className="grid h-6 w-6 place-items-center rounded bg-accent text-[11px] tracking-normal text-black">OA</span>
-      OA LAB
+    <Link href={href} className={`flex items-center gap-2 text-[15px] font-bold tracking-tight ${light ? 'text-white' : 'text-fg'}`}>
+      <LogoMark className="h-7 w-7" />
+      <span>OA&nbsp;Lab</span>
     </Link>
   );
+}
+
+/** OA Lab mark: a lab flask holding a code bracket. Same artwork as app/icon.svg (favicon). */
+export function LogoMark({ className = 'h-7 w-7' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="#1E9D50" />
+      <path d="M25 12h14M27.5 12v13.5L15.8 46.2A5 5 0 0 0 20.2 53.5h23.6a5 5 0 0 0 4.4-7.3L36.5 25.5V12" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M27 36.5l-4.5 4.5 4.5 4.5M37 36.5l4.5 4.5-4.5 4.5M33.5 34.5l-3 13" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Dark navy top navigation bar used across the app. */
+export function TopNav({ children, href = '/' }: { children?: React.ReactNode; href?: string }) {
+  return (
+    <header className="topnav sticky top-0 z-30">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-5">
+        <Logo href={href} />
+        {children}
+      </div>
+    </header>
+  );
+}
+
+export function DifficultyText({ level }: { level: string }) {
+  return <span className={`text-xs font-semibold capitalize diff-${level}`}>{level}</span>;
 }
 
 export function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
@@ -34,13 +61,14 @@ export function HealthBadge() {
   useEffect(() => {
     api.health().then(setH, () => setErr(true));
   }, []);
-  if (err) return <span className="badge border-bad/40 text-bad">API offline</span>;
-  if (!h) return <span className="badge"><Spinner className="h-3 w-3" /> connecting</span>;
-  if (h.driver === 'local') return <span className="badge border-warn/40 text-warn" title="Code runs on the host without isolation">local driver · unsafe</span>;
+  const pill = 'inline-flex items-center gap-1.5 rounded-full border border-white/15 px-2.5 py-0.5 text-[11px] font-medium';
+  if (err) return <span className={`${pill} text-red-300`}>● API offline</span>;
+  if (!h) return <span className={`${pill} text-white/60`}><Spinner className="h-3 w-3" /> connecting</span>;
+  if (h.driver === 'local') return <span className={`${pill} text-amber-300`} title="Code runs on the host without isolation">● Local driver (unsafe)</span>;
   return h.docker ? (
-    <span className="badge border-ok/40 text-ok">● Docker sandbox</span>
+    <span className={`${pill} text-emerald-300`}>● Sandbox ready</span>
   ) : (
-    <span className="badge border-bad/40 text-bad" title="Start Docker Desktop">Docker unavailable</span>
+    <span className={`${pill} text-red-300`} title="Start Docker Desktop">● Docker unavailable</span>
   );
 }
 
@@ -98,11 +126,11 @@ export function ConfirmDialog({
   }, [open, busy, onCancel]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="card w-full max-w-md p-5 shadow-2xl">
-        <h3 className="text-base font-semibold">{title}</h3>
-        <div className="mt-2 text-sm text-muted">{body}</div>
-        <div className="mt-5 flex justify-end gap-2">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-nav/50 p-4">
+      <div className="w-full max-w-md rounded-md bg-panel shadow-2xl">
+        <h3 className="border-b border-line px-5 py-3.5 text-base font-bold">{title}</h3>
+        <div className="px-5 py-4 text-sm leading-relaxed text-muted">{body}</div>
+        <div className="flex justify-end gap-2 border-t border-line bg-raised px-5 py-3">
           <button className="btn" onClick={onCancel} disabled={busy}>Cancel</button>
           <button className={`btn ${danger ? 'btn-danger' : 'btn-primary'}`} onClick={onConfirm} disabled={busy}>
             {busy && <Spinner className="h-3.5 w-3.5" />}

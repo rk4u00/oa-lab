@@ -3,7 +3,7 @@
   "title": "Q5 \u00b7 Gift Card Wallet \u00b7 Node.js (Express) \u00b7 Easy",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "easy",
   "durationMinutes": 30,
   "description": "Imported Node.js practice repository (q5-node-gift-wallet). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../q5-node-gift-wallet/README.md",

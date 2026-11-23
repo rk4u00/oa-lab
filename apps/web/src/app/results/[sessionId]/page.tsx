@@ -28,10 +28,10 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line">
+      <header className="topnav">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <Logo />
-          <Link href="/" className="btn btn-ghost"><ArrowLeft className="h-3.5 w-3.5" /> Dashboard</Link>
+          <Link href="/" className="btn-nav"><ArrowLeft className="h-3.5 w-3.5" /> Dashboard</Link>
         </div>
       </header>
       <main className="mx-auto max-w-5xl space-y-8 px-4 py-8">

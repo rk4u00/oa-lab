@@ -3,7 +3,7 @@
   "title": "Q3 \u00b7 Task Board \u00b7 Spring Boot \u00b7 Easy",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "easy",
   "durationMinutes": 30,
   "description": "Imported Spring Boot practice repository (q3-spring-task-board). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../q3-spring-task-board/README.md",

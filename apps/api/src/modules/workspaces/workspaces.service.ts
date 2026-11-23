@@ -158,6 +158,8 @@ export class WorkspacesService implements OnApplicationBootstrap {
     if (ws.status === 'PREPARING' || ws.status === 'FAILED') throw new ConflictException(`Workspace is ${ws.status}`);
     const c = this.content.challenge(ws.challengeId);
     if (ws.containerHandle && (await this.driver.isWorkspaceRunning(ws.containerHandle))) return ws;
+    if (!(await exists(ws.hostPath))) throw new ConflictException('Workspace files are missing — start a new attempt.');
+    await this.ensureRuntime(c.manifest.runtime.image);
     const handle = await this.driver.startWorkspace(ws.id, {
       image: c.manifest.runtime.image,
       hostDir: ws.hostPath,
@@ -181,8 +183,16 @@ export class WorkspacesService implements OnApplicationBootstrap {
   }
 
   async details(id: string) {
-    const ws = await this.prisma.workspace.findUnique({ where: { id }, include: { sectionAttempt: true } });
+    let ws = await this.prisma.workspace.findUnique({ where: { id }, include: { sectionAttempt: true } });
     if (!ws) throw new NotFoundException('Workspace not found');
+    if (ws.sectionAttempt.status === 'IN_PROGRESS' && (ws.status === 'RUNNING' || ws.status === 'STOPPED') && this.driver.name === 'docker') {
+      const alive = ws.containerHandle ? await this.driver.isWorkspaceRunning(ws.containerHandle) : false;
+      if (!alive) {
+        this.log.log(`Sandbox for workspace ${id} is gone — recreating it`);
+        await this.start(id).catch((e) => this.log.error(`Recreate failed: ${(e as Error).message}`));
+        ws = (await this.prisma.workspace.findUnique({ where: { id }, include: { sectionAttempt: true } }))!;
+      }
+    }
     const c = this.content.challenge(ws.challengeId);
     const log = await fs.readFile(this.dirs(id).log, 'utf8').catch(() => undefined);
     return {

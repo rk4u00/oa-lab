@@ -3,7 +3,7 @@
   "title": "Q1 \u00b7 Wishlist \u00b7 Django \u00b7 Easy",
   "company": "amazon",
   "category": "repository-debugging",
-  "difficulty": "medium",
+  "difficulty": "easy",
   "durationMinutes": 30,
   "description": "Imported Django practice repository (q1-django-wishlist). Read the task, make the failing tests pass without editing them.",
   "taskFile": "../../q1-django-wishlist/README.md",

@@ -29,7 +29,7 @@ export function TerminalPane({ workspaceId, visible, enabled }: { workspaceId: s
         fontFamily: 'JetBrains Mono, ui-monospace, Menlo, monospace',
         fontSize: 13,
         cursorBlink: true,
-        theme: { background: '#0c0c0e', foreground: '#e4e4e7', cursor: '#f59e0b', selectionBackground: '#f59e0b44' },
+        theme: { background: '#11161d', foreground: '#e4e4e7', cursor: '#39d27a', selectionBackground: '#39d27a44' },
         scrollback: 5000,
       });
       const fit = new FitAddon();
