@@ -1,0 +1,376 @@
+{
+  "results": [
+    {
+      "query_id": "q1",
+      "category_id": 10,
+      "region": "IN",
+      "matched_count": 11,
+      "products": [
+        {
+          "product_id": 4044,
+          "name": "Blizzard Cooling Pad",
+          "popularity": 95.0
+        },
+        {
+          "product_id": 4007,
+          "name": "Raptor 16 Gaming Laptop",
+          "popularity": 92.0
+        },
+        {
+          "product_id": 4021,
+          "name": "Viper 15 Gaming Laptop",
+          "popularity": 92.0
+        },
+        {
+          "product_id": 4026,
+          "name": "Titan RTX Graphics Card",
+          "popularity": 92.0
+        },
+        {
+          "product_id": 4033,
+          "name": "Swift 1TB NVMe",
+          "popularity": 90.0
+        }
+      ]
+    },
+    {
+      "query_id": "q2",
+      "category_id": 1,
+      "region": "IN",
+      "matched_count": 17,
+      "products": [
+        {
+          "product_id": 4005,
+          "name": "Orbit Pro Max",
+          "popularity": 96.0
+        },
+        {
+          "product_id": 4044,
+          "name": "Blizzard Cooling Pad",
+          "popularity": 95.0
+        },
+        {
+          "product_id": 4007,
+          "name": "Raptor 16 Gaming Laptop",
+          "popularity": 92.0
+        },
+        {
+          "product_id": 4021,
+          "name": "Viper 15 Gaming Laptop",
+          "popularity": 92.0
+        },
+        {
+          "product_id": 4026,
+          "name": "Titan RTX Graphics Card",
+          "popularity": 92.0
+        }
+      ]
+    },
+    {
+      "query_id": "q3",
+      "category_id": 1,
+      "region": "US",
+      "matched_count": 12,
+      "products": [
+        {
+          "product_id": 4025,
+          "name": "Orbit Pro Max",
+          "popularity": 94.0
+        },
+        {
+          "product_id": 4009,
+          "name": "Workstation Pro 17",
+          "popularity": 89.0
+        },
+        {
+          "product_id": 4040,
+          "name": "Raptor 16 Gaming Laptop",
+          "popularity": 89.0
+        },
+        {
+          "product_id": 4041,
+          "name": "Zenith X Ultrabook",
+          "popularity": 89.0
+        },
+        {
+          "product_id": 4019,
+          "name": "Pixelate 8a",
+          "popularity": 85.0
+        },
+        {
+          "product_id": 4020,
+          "name": "Galaxion S",
+          "popularity": 85.0
+        },
+        {
+          "product_id": 4045,
+          "name": "FrostByte Cooling Pad",
+          "popularity": 81.0
+        },
+        {
+          "product_id": 4027,
+          "name": "Nova 8GB Graphics Card",
+          "popularity": 77.0
+        },
+        {
+          "product_id": 4031,
+          "name": "QiPad Wireless Charger",
+          "popularity": 72.4
+        },
+        {
+          "product_id": 4028,
+          "name": "TurboCharge 65W",
+          "popularity": 72.0
+        }
+      ]
+    },
+    {
+      "query_id": "q4",
+      "category_id": 1011,
+      "region": "IN",
+      "matched_count": 3,
+      "products": [
+        {
+          "product_id": 4033,
+          "name": "Swift 1TB NVMe",
+          "popularity": 90.0
+        },
+        {
+          "product_id": 4034,
+          "name": "Swift 2TB NVMe",
+          "popularity": 90.0
+        },
+        {
+          "product_id": 4016,
+          "name": "Archive 4TB HDD",
+          "popularity": 60.0
+        }
+      ]
+    },
+    {
+      "query_id": "q5",
+      "category_id": 9999,
+      "region": "IN",
+      "matched_count": 0,
+      "products": []
+    },
+    {
+      "query_id": "q6",
+      "category_id": 77,
+      "region": "IN",
+      "matched_count": 0,
+      "products": []
+    },
+    {
+      "query_id": "q7",
+      "category_id": 21,
+      "region": "IN",
+      "matched_count": 0,
+      "products": []
+    },
+    {
+      "query_id": "q8",
+      "category_id": 110,
+      "region": "in",
+      "matched_count": 1,
+      "products": [
+        {
+          "product_id": 4002,
+          "name": "Galaxion S",
+          "popularity": 87.0
+        }
+      ]
+    },
+    {
+      "query_id": "q9",
+      "category_id": 11,
+      "region": "IN",
+      "matched_count": 6,
+      "products": []
+    },
+    {
+      "query_id": "q10",
+      "category_id": 2,
+      "region": "EU",
+      "matched_count": 7,
+      "products": [
+        {
+          "product_id": 4013,
+          "name": "Steam Wand Frother",
+          "popularity": 97.0
+        },
+        {
+          "product_id": 4010,
+          "name": "Barista Express",
+          "popularity": 93.0
+        },
+        {
+          "product_id": 4011,
+          "name": "Barista Touch",
+          "popularity": 93.0
+        },
+        {
+          "product_id": 4015,
+          "name": "Drip Brew 12-Cup",
+          "popularity": 80.5
+        },
+        {
+          "product_id": 4018,
+          "name": "Pour-Over Kettle",
+          "popularity": 80.5
+        }
+      ]
+    },
+    {
+      "query_id": "q11",
+      "category_id": 200,
+      "region": "EU",
+      "matched_count": 5,
+      "products": [
+        {
+          "product_id": 4013,
+          "name": "Steam Wand Frother",
+          "popularity": 97.0
+        },
+        {
+          "product_id": 4010,
+          "name": "Barista Express",
+          "popularity": 93.0
+        },
+        {
+          "product_id": 4011,
+          "name": "Barista Touch",
+          "popularity": 93.0
+        },
+        {
+          "product_id": 4015,
+          "name": "Drip Brew 12-Cup",
+          "popularity": 80.5
+        },
+        {
+          "product_id": 4023,
+          "name": "Moka Pot Classic",
+          "popularity": 80.0
+        }
+      ]
+    },
+    {
+      "query_id": "q12",
+      "category_id": 3,
+      "region": "US",
+      "matched_count": 2,
+      "products": [
+        {
+          "product_id": 4046,
+          "name": "The Long Orbit",
+          "popularity": 77.0
+        },
+        {
+          "product_id": 4048,
+          "name": "Paper Lanterns",
+          "popularity": 77.0
+        }
+      ]
+    },
+    {
+      "query_id": "q13",
+      "category_id": 1110,
+      "region": "US",
+      "matched_count": 3,
+      "products": [
+        {
+          "product_id": 4031,
+          "name": "QiPad Wireless Charger",
+          "popularity": 72.4
+        }
+      ]
+    },
+    {
+      "query_id": "q4",
+      "category_id": 1011,
+      "region": "US",
+      "matched_count": 1,
+      "products": [
+        {
+          "product_id": 4017,
+          "name": "Archive 8TB HDD",
+          "popularity": 65.0
+        }
+      ]
+    },
+    {
+      "query_id": "q14",
+      "category_id": 100,
+      "region": "US",
+      "matched_count": 4,
+      "products": [
+        {
+          "product_id": 4009,
+          "name": "Workstation Pro 17",
+          "popularity": 89.0
+        },
+        {
+          "product_id": 4040,
+          "name": "Raptor 16 Gaming Laptop",
+          "popularity": 89.0
+        }
+      ]
+    },
+    {
+      "query_id": "q15",
+      "category_id": 10110,
+      "region": "IN",
+      "matched_count": 2,
+      "products": [
+        {
+          "product_id": 4033,
+          "name": "Swift 1TB NVMe",
+          "popularity": 90.0
+        },
+        {
+          "product_id": 4034,
+          "name": "Swift 2TB NVMe",
+          "popularity": 90.0
+        }
+      ]
+    },
+    {
+      "query_id": "q16",
+      "category_id": 1,
+      "region": "EU",
+      "matched_count": 0,
+      "products": []
+    },
+    {
+      "query_id": "q17",
+      "category_id": 30,
+      "region": "us",
+      "matched_count": 1,
+      "products": [
+        {
+          "product_id": 4047,
+          "name": "Salt and Ember",
+          "popularity": 83.0
+        }
+      ]
+    },
+    {
+      "query_id": "q18",
+      "category_id": 2000,
+      "region": "EU",
+      "matched_count": 3,
+      "products": [
+        {
+          "product_id": 4013,
+          "name": "Steam Wand Frother",
+          "popularity": 97.0
+        },
+        {
+          "product_id": 4010,
+          "name": "Barista Express",
+          "popularity": 93.0
+        }
+      ]
+    }
+  ]
+}

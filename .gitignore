@@ -4,11 +4,11 @@ dist/
 .turbo/
 *.tsbuildinfo
 .env
-data/
+/data/
 prisma/*.db
 prisma/*.db-journal
 __pycache__/
 *.pyc
 .pytest_cache/
 next-env.d.ts
-imports/
+/imports/

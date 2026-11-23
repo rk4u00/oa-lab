@@ -1,0 +1,32 @@
+{
+  "taxonomy_version": "2024.11-r3",
+  "generated_at": "2024-11-18T04:12:55Z",
+  "categories": [
+    { "id": 1,     "name": "Electronics",            "parent_id": null },
+    { "id": 10,    "name": "Computers",              "parent_id": 1 },
+    { "id": 100,   "name": "Laptops",                "parent_id": 10 },
+    { "id": 1000,  "name": "Gaming Laptops",         "parent_id": 100 },
+    { "id": 10000, "name": "Laptop Cooling Pads",    "parent_id": 1000 },
+    { "id": 1001,  "name": "Ultrabooks",             "parent_id": 100 },
+    { "id": 101,   "name": "Components",             "parent_id": 10 },
+    { "id": 1010,  "name": "Graphics Cards",         "parent_id": 101 },
+    { "id": 10110, "name": "NVMe SSDs",              "parent_id": 1011 },
+    { "id": 1011,  "name": "Storage",                "parent_id": 101 },
+    { "id": 11,    "name": "Mobile",                 "parent_id": 1 },
+    { "id": 1101,  "name": "Flagship Phones",        "parent_id": 110 },
+    { "id": 110,   "name": "Smartphones",            "parent_id": 11 },
+    { "id": 1100,  "name": "Android Phones",         "parent_id": 110 },
+    { "id": 111,   "name": "Phone Accessories",      "parent_id": 11 },
+    { "id": 1110,  "name": "Chargers",               "parent_id": 111 },
+    { "id": 11100, "name": "Wireless Chargers",      "parent_id": 1110 },
+    { "id": 2,     "name": "Home & Kitchen" },
+    { "id": 20,    "name": "Kitchen Appliances",     "parent_id": 2 },
+    { "id": 200,   "name": "Coffee Machines",        "parent_id": 20 },
+    { "id": 2000,  "name": "Espresso Machines",      "parent_id": 200 },
+    { "id": 20000, "name": "Milk Frothers",          "parent_id": 2000 },
+    { "id": 21,    "name": "Furniture",              "parent_id": 2 },
+    { "id": 3,     "name": "Books",                  "parent_id": null },
+    { "id": 30,    "name": "Fiction",                "parent_id": 3 },
+    { "id": 31,    "name": "Non-fiction",            "parent_id": 3 }
+  ]
+}

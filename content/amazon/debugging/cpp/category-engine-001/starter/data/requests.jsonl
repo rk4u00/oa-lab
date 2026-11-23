@@ -1,0 +1,19 @@
+{"query_id": "q1", "category_id": 10, "region": "IN", "max_results": 5}
+{"query_id": "q2", "category_id": 1, "region": "IN"}
+{"query_id": "q3", "category_id": 1, "region": "US", "max_results": 10}
+{"query_id": "q4", "category_id": 1011, "region": "IN", "max_results": 3}
+{"query_id": "q5", "category_id": 9999, "region": "IN", "max_results": 5}
+{"query_id": "q6", "category_id": 77, "region": "IN", "max_results": 5}
+{"query_id": "q7", "category_id": 21, "region": "IN"}
+{"query_id": "q8", "category_id": 110, "region": "in", "max_results": 5}
+{"query_id": "q9", "category_id": 11, "region": "IN", "max_results": 0}
+{"query_id": "q10", "category_id": 2, "region": "EU", "max_results": null}
+{"query_id": "q11", "category_id": 200, "region": "EU", "max_results": 100}
+{"query_id": "q12", "category_id": 3, "region": "US"}
+{"query_id": "q13", "category_id": 1110, "region": "US", "max_results": 1}
+{"query_id": "q4", "category_id": 1011, "region": "US", "max_results": 3}
+{"query_id": "q14", "category_id": 100, "region": "US", "max_results": 2}
+{"query_id": "q15", "category_id": 10110, "region": "IN"}
+{"query_id": "q16", "category_id": 1, "region": "EU", "max_results": 3}
+{"query_id": "q17", "category_id": 30, "region": "us", "max_results": 4}
+{"query_id": "q18", "category_id": 2000, "region": "EU", "max_results": 2}
