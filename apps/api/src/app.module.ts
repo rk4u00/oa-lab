@@ -9,9 +9,10 @@ import { SessionsService } from './modules/sessions/sessions.service';
 import { TerminalService } from './modules/terminal/terminal.service';
 import { WorkspacesController } from './modules/workspaces/workspaces.controller';
 import { WorkspacesService } from './modules/workspaces/workspaces.service';
+import { HousekeepingService } from './modules/workspaces/housekeeping.service';
 
 @Module({
   controllers: [HealthController, ContentController, SessionsController, WorkspacesController],
-  providers: [driverProvider, PrismaService, ContentService, WorkspacesService, SessionsService, TerminalService],
+  providers: [driverProvider, PrismaService, ContentService, WorkspacesService, SessionsService, TerminalService, HousekeepingService],
 })
 export class AppModule {}

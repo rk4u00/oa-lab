@@ -50,6 +50,17 @@ Browser (Next.js, :3000) ──REST/WS──► API (NestJS, :4000) ──docker
 3. **Sessions.** Each attempt gets a fresh copy of the repository and its own container. Tests run with **networking disabled**.
 4. **Grading.** On submit (or when time runs out), protected paths such as `tests/` are restored from the pristine copy and the full suite runs.
 
+## Resource usage
+
+A sandbox container is created per attempt, but only the question you are working on has one running. It is removed when you submit.
+
+| Setting | Default | What it does |
+|---|---|---|
+| `OA_IDLE_STOP_MINUTES` | `10` | Stops a sandbox after N minutes without activity (editing, tests, terminal). It is recreated automatically the next time you use it, and your files are kept. |
+| `OA_RETENTION_DAYS` | `7` | Deletes finished attempts' files after N days. Scores, test results and diffs stay in the database. |
+
+At startup, OA Lab also removes sandbox containers left over from a crash or restart. One user needs about 4 GB RAM for Django/Node questions and 8 GB for Spring Boot questions.
+
 ## Repository layout
 
 ```

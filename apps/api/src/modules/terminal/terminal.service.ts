@@ -65,6 +65,7 @@ export class TerminalService {
       WorkingDir: '/workspace',
     });
     const stream = await exec.start({ hijack: true, stdin: true, Tty: true });
+    this.workspaces.touch(workspaceId);
     stream.on('data', (d: Buffer) => ws.readyState === ws.OPEN && ws.send(d.toString('utf8')));
     stream.on('end', () => ws.close());
     ws.on('message', (raw) => {
@@ -74,7 +75,10 @@ export class TerminalService {
       } catch {
         return;
       }
-      if (msg.type === 'input') stream.write(msg.data);
+      if (msg.type === 'input') {
+        stream.write(msg.data);
+        this.workspaces.touch(workspaceId);
+      }
       else if (msg.type === 'resize' && msg.cols > 0 && msg.rows > 0) void exec.resize({ w: Math.min(msg.cols, 500), h: Math.min(msg.rows, 200) }).catch(() => undefined);
     });
     ws.on('close', () => {

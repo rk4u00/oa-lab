@@ -25,6 +25,10 @@ export const env = {
   importsDir: resolve(process.env.OA_IMPORTS_DIR ?? 'imports'),
   /** Off by default: practice repos ship pre-imported under content/imported. Set true to import content/sources.json at boot. */
   autoImport: process.env.OA_AUTO_IMPORT === 'true',
+  /** Stop a sandbox container after this many minutes without activity (0 = never). It restarts on demand. */
+  idleStopMinutes: Number(process.env.OA_IDLE_STOP_MINUTES ?? 10),
+  /** Delete finished attempts' workspace files after this many days (0 = keep forever). Scores and diffs stay in the DB. */
+  retentionDays: Number(process.env.OA_RETENTION_DAYS ?? 7),
   autoBuildRuntimes: (process.env.OA_AUTO_BUILD_RUNTIMES ?? 'true') !== 'false',
   contentDir: resolve(process.env.OA_CONTENT_DIR ?? 'content'),
   dataDir: resolve(process.env.OA_DATA_DIR ?? 'data'),

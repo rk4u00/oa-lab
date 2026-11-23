@@ -11,6 +11,9 @@ services:
     environment:
       # Host path of ./data — sandbox containers are siblings and need real host paths.
       OA_HOST_DATA_DIR: ${PWD}/data
+      # Stop idle sandboxes after N minutes (auto-restart on use) / delete finished attempts after N days.
+      OA_IDLE_STOP_MINUTES: "10"
+      OA_RETENTION_DAYS: "7"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./data:/app/data

@@ -39,6 +39,17 @@ export class WorkspacesService implements OnApplicationBootstrap {
   ) {}
 
   private images = new Map<string, Promise<void>>();
+  /** Last user activity per workspace (in memory; after an API restart everything counts as fresh). */
+  private readonly lastActive = new Map<string, number>();
+
+  touch(id: string) {
+    this.lastActive.set(id, Date.now());
+  }
+
+  lastActivity(id: string) {
+    if (!this.lastActive.has(id)) this.lastActive.set(id, Date.now());
+    return this.lastActive.get(id)!;
+  }
 
   /** Build any missing runtime images in the background on startup (first run only). */
   onApplicationBootstrap() {
@@ -60,6 +71,17 @@ export class WorkspacesService implements OnApplicationBootstrap {
       this.images.set(image, p);
     }
     return this.images.get(image)!;
+  }
+
+  /** Remove an attempt's files from disk (DB rows, scores and diffs are kept). */
+  async deleteFiles(id: string) {
+    await fs.rm(this.dirs(id).base, { recursive: true, force: true });
+    await this.prisma.workspace.update({ where: { id }, data: { status: 'ARCHIVED', containerHandle: null } });
+    this.lastActive.delete(id);
+  }
+
+  workspacesRoot() {
+    return path.join(env.dataDir, 'workspaces');
   }
 
   private dirs(id: string) {
@@ -194,6 +216,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
         ws = (await this.prisma.workspace.findUnique({ where: { id }, include: { sectionAttempt: true } }))!;
       }
     }
+    this.touch(id);
     const c = this.content.challenge(ws.challengeId);
     const log = await fs.readFile(this.dirs(id).log, 'utf8').catch(() => undefined);
     return {
@@ -222,7 +245,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
     if (!ws) throw new NotFoundException('Workspace not found');
     const sa = ws.sectionAttempt;
     if (sa.status !== 'IN_PROGRESS' || (sa.deadline && sa.deadline.getTime() < Date.now())) throw new ForbiddenException('This section is no longer in progress');
-    if (ws.status !== 'RUNNING' && ws.status !== 'READY') throw new ConflictException(`Workspace is ${ws.status}`);
+    if (!['RUNNING', 'READY', 'STOPPED'].includes(ws.status)) throw new ConflictException(`Workspace is ${ws.status}`);
     return ws;
   }
 
@@ -236,6 +259,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
 
   async tree(id: string): Promise<FileNode[]> {
     const ws = await this.get(id);
+    this.touch(id);
     const walk = async (dir: string, rel: string): Promise<FileNode[]> => {
       const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
       const nodes: FileNode[] = [];
@@ -263,6 +287,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
 
   async writeFile(id: string, rel: string, content: string) {
     const ws = await this.assertWritable(id);
+    this.touch(id);
     if (this.isReadOnly(ws.challengeId, rel)) throw new ForbiddenException('This file is read-only for the assessment');
     if (Buffer.byteLength(content) > MAX_FILE_BYTES) throw new BadRequestException('File too large');
     const abs = await safeResolve(ws.hostPath, rel);
@@ -290,6 +315,7 @@ export class WorkspacesService implements OnApplicationBootstrap {
 
   async runTests(id: string, target?: string, opts: { final?: boolean } = {}) {
     const ws = opts.final ? await this.get(id) : await this.assertWritable(id);
+    this.touch(id);
     if (this.running.has(id)) throw new ConflictException('Tests are already running');
     if (target && !/^[\w./:\-\[\]# *,]+$/.test(target)) throw new BadRequestException('Invalid test target');
     const c = this.content.challenge(ws.challengeId);
